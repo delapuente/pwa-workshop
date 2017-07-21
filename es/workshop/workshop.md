@@ -368,6 +368,7 @@ De todas formas, conviene conocer la diferencia entre el protocolo de red y la m
 ### Estableciendo la comunicación cliente-servidor
 
 **Nota**: configurar las notificaciones push para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores `gcm_sender_id` y `gcm_api_key` de una aplicación [Firebase](https://firebase.google.com/). Aunque se te propocionarán unos valores de prueba durante el talle, puedes crear tu propia aplicación Firebase y consultar esta [guía de TapJoy para saber dónde encontrarlos](http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/).
+
 ---
 
 Comenzar a enviar notificaciones, sin el permiso explícito del usuario, podría resultar demasiado intrusivo. Es por ello que los navegadores obligan a pedir una subscripción explícitamente. En el momento en que el código del cliente pide una subscripción, el navegador pide permiso al usuario para recibir notificaciones.
