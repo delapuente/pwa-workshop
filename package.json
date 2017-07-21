@@ -1,0 +1,47 @@
+{
+  "name": "pwa-workshop",
+  "version": "1.0.0",
+  "description": "Progressive Web Application workshop",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "styles": "mkdirp ./es/styles && cpr styles/website.css es/styles/ -o",
+    "serve:es": "npm run styles && gitbook serve ./es",
+    "ebook:es": "mkdirp dist/es/ebook && npm run ebook:es:pdf && npm run ebook:es:epub",
+    "ebook:es:pdf": "gitbook pdf ./es ./dist/es/ebook/js-for-gamedev.pdf",
+    "ebook:es:epub": "gitbook epub ./es ./dist/es/ebook/js-for-gamedev.epub",
+    "gitbook:es": "gitbook build ./es dist/es",
+    "build:es": "npm run styles && npm run gitbook:es",
+    "build:root": "mkdirp dist && cpr root dist -u -o",
+    "build": "npm run build:root && npm run build:es",
+    "clean": "rimraf dist ./es/styles es/**/*.zip",
+    "deploy": "gh-pages -d dist"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mozdevs/pwa-workshop.git"
+  },
+  "keywords": [
+    "learning",
+    "tutorial",
+    "javascript",
+    "pwa",
+    "manifest",
+    "service-worker",
+    "push"
+  ],
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/mozdevs/pwa-workshop/issues"
+  },
+  "homepage": "https://github.com/mozdevs/pwa-workshop#readme",
+  "private": true,
+  "dependencies": {
+    "archiver": "^1.2.0",
+    "cpr": "^2.0.0",
+    "gh-pages": "^0.12.0",
+    "gitbook-cli": "^2.3.0",
+    "mkdirp": "^0.5.1",
+    "rimraf": "^2.5.4"
+  }
+}
