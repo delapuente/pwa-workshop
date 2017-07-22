@@ -62,11 +62,13 @@ var VERSION = 1;
 var PREFIX = '__pwa-workshop';
 var CACHE_NAME = `${PREFIX}-assets-v${VERSION}`;
 var ASSETS = [
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Finvisible.svg?1500732711924',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign.svg?1500732712044',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Flike.svg?1500732712234',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Flike-black.svg?1500733444163',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Finvisible-black.svg?1500733601054',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign-black.svg?1500733601379',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ficon196.png?1500664388904',
-  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Fplus-black-symbol.svg?1499350618348',
-  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign.svg?1499363273037',
-  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Flike.svg?1499363275514',
-  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Fcloud-backup-up-arrow.svg?1499366672437',
   'https://fonts.googleapis.com/css?family=Poppins',
   'https://fonts.gstatic.com/s/poppins/v2/HUuNgGR31mqIHE6zs0BlBgLUuEpTyoUstqEm5AMlJo4.woff2',
   '/client.js',
