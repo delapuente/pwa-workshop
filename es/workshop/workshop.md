@@ -19,7 +19,7 @@ En la lista de la izquierda, haz clic en el item _Service Workers_ para comproba
 
 Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. Así, `http://mozilla.org` y `https://mozilla.org` son orígenes distintos, como también lo son `localhost:8000` y `localhost:3333`.
 
-Un service worker debe registrarse desde el código del cliente. Edita `public/client.js` y añade el siguiente código:
+Un service worker debe registrarse desde el hilo principal. Edita `public/client.js` y añade el siguiente código:
 
 ```js
 if ('serviceWorker' in navigator) {
@@ -29,7 +29,7 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-El condicional omite el proceso de registro si el navegador no soporta _service workers_. En caso de soportarlos, el método [`register`](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) devuelve una promesa que, en caso de cumplirse, garantiza que el _service worker_ está instalándose.
+El condicional omite el proceso de registro si el navegador no soporta _service workers_. En caso de soportarlos, el método [`register`](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerContainer/register) devuelve una promesa que, en caso de cumplirse, garantiza que el _service worker_ pudo descargarse, interpretarse correctamente y se encuentra en proceso de instalación.
 
 Por supuesto, has de incluir el script en el punto de entrada HTML. En este caso edita `views/index.html` y antes de la etiqueta de cierre de la cabecera `</head>`, añade la siguiente línea:
 
@@ -37,11 +37,11 @@ Por supuesto, has de incluir el script en el punto de entrada HTML. En este caso
 <script src="/client.js"></script>
 ```
 
-Cuando tu aplicación se actualice, comprueba que en la consola aparece el mensaje de que todo ha ido bien y que en la sección _Service workers_ de la pestaña _Application_ se muestra el service worker como aparece en la captura siguiente:
+Cuando tu aplicación se actualice, comprueba que en la consola aparece el mensaje de que todo ha ido bien y que en la sección _Service workers_ de la pestaña _Application_ se muestra el _service worker_ como aparece en la captura siguiente:
 
 ![Si todo ha ido bien, el status del service worker indica _activated and is running_]()
 
-Un service worker sólo puede registrarse desde un origen seguro, que utilice [HTTPS](https://es.wikipedia.org/wiki/Hypertext_Transfer_Protocol_Secure). Puedes comprobar otros requerimientos rápidamente en la infografía [_Service Workers 101_](https://github.com/delapuente/service-workers-101#service-workers-101).
+Un _service worker_ sólo puede registrarse desde un origen seguro, que utilice [HTTPS](https://es.wikipedia.org/wiki/Hypertext_Transfer_Protocol_Secure). Puedes comprobar otros requerimientos rápidamente en la infografía [_Service Workers 101_](https://github.com/delapuente/service-workers-101#service-workers-101).
 
 ### Instalación y activación del _service worker_
 
@@ -62,6 +62,7 @@ var VERSION = 1;
 var PREFIX = '__pwa-workshop';
 var CACHE_NAME = `${PREFIX}-assets-v${VERSION}`;
 var ASSETS = [
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ficon196.png?1500664388904',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Fplus-black-symbol.svg?1499350618348',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign.svg?1499363273037',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Flike.svg?1499363275514',
@@ -133,13 +134,13 @@ Si todo ha ido bien, no deberías ver nuevos errores bajo el estado del _service
 
 ### Estrategias de cache
 
-Gracias a las cachés sin conexión ([_Offline Caches_](https://developer.mozilla.org/en-US/docs/Web/API/Cache)) tenemos los recursos para recrear la interfaz de usuario sin necesidad de estar conectados a la red, pero aun no le hemos dicho al _SW_ cuándo debe servir estos recursos. Por el momento, todas las peticiones a la red alcanzan la red.
+Gracias a las cachés sin conexión ([_Offline Caches_](https://developer.mozilla.org/en-US/docs/Web/API/Cache)) hemos guardado los recursos necesarios para recrear la interfaz de usuario sin necesidad de estar conectados a la red; pero aun no le hemos dicho al _SW_ cuándo debe servir estos recursos. Por el momento, todas las peticiones alcanzan la red.
 
 Puedes ir al panel _Network_ en las herramientas de desarrollador y activar el interruptor _Offline_ para simular que no hay red. Realiza alguna acción o recarga y verás como la aplicación falla estrepitosamente.
 
 ![Detalle del interruptor offline que simula la ausencia de red]()
 
-Sin modificar una sola línea en el código de la UI, nuestra intención es crear una capa de red, en el _service worker_, que responda de forma diferente según el tipo de petición y el estado de la conexión.
+Sin modificar una sola línea en el código de la _UI_, nuestra intención es crear una capa de red, en el _service worker_, que responda de forma diferente según el tipo de petición y el estado de la conexión.
 
 Empieza añadiendo el siguiente listado, tras registrar el _listener_ del evento `activate`:
 
@@ -155,9 +156,9 @@ self.addEventListener('fetch', event => {
 
 La función `handleRequest` será la encargada de implementar esta capa de red y devolverá una lista con dos promesas. El método [`respondWith`](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith) consume la primera, que debe resolverse con un objeto del tipo [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) y será entregado al navegador para que sirva de respuesta a la petición. De nuevo, utilizaremos [`waitUntil`](https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil) para extender la vida del _SW_ hasta que la segunda promesa de la lista se resuelva.
 
-Los _service workers_ están pensados para realizar una tarea concreta y cerrarse de forma que no consuman recursos innecesarios. Dada su naturaleza asíncrona, no se puede determinar de antemano cuándo un _service worker_ ha terminado. Es por ello que utilizamos `waitUntil` con una promesa. Tal promesa expresa que todas las acciones que queremos realizar han terminado.
+Los _service workers_ están pensados para realizar una tarea concreta y cerrarse de forma que no consuman recursos innecesarios. Dada su naturaleza asíncrona, no se puede determinar de antemano cuándo un _service worker_ ha terminado. Es por ello que utilizamos `waitUntil` con una promesa. Tal promesa expresa que **todas las acciones que queremos realizar han terminado**.
 
-Por el mismo motivo, no se puede confiar en el estado global de un _service worker_ dado que, tarde o temprano, el navegador eliminará al _SW_ y el estado global se perderá.
+Por el mismo motivo, no se puede confiar en el estado global de un _service worker_ _como mecanismo de persistencia_ dado que, tarde o temprano, el navegador lo eliminará y el estado global se perderá. Esto no significa que no podamos confiar en el estado global _para compartir valores comunes e inmutables_ (como el listado de `ASSETTS`).
 
 #### Estrategia _sólo caché_
 
@@ -195,21 +196,23 @@ function only(promise) {
 }
 ```
 
-Ve ahora a la pestaña _Network_ y limpia los logs. Recarga el tab manualmente y observa los resultados en la lista de peticiones. Verás como los recursos se sirven desde el _SW_:
+Ve ahora a la pestaña _Network_ y limpia los logs. Recarga la pestaña manualmente y observa los resultados en la lista de peticiones. Verás como los recursos se sirven desde el _SW_:
 
 ![En la columna size se lee "from service worker" indicando que el recurso se ha servidor desde un service worker]()
 
 Date cuenta de que aunque se indique que el recurso se ha servido desde el _SW_, esto **no significa que se haya servido desde una caché**.
 
-Si activas el modo _Offline_ y recargas, verás cómo la aplicación sigue fallando. Esto es porque el índice no se considera un recurso (_asset_) y, por tanto, no se sirve desde una caché.
+Si activas el modo _Offline_ y recargas, verás cómo la aplicación sigue fallando. Esto es porque el índice no se considera un recurso (_asset_) en la función `isAsset` y, por tanto, no se sirve desde la caché.
 
 Sin embargo, podrías consultar la página de error `/error-page.html` dado que esta sí se considera un recurso y se servirá desde la caché. Lo mismo ocurre con cualquier recurso que incluyeras en la variable `ASSETS`.
 
-El código anterior se explica por sí mismo: si la petición es un recurso, lo servimos desde la caché con la función `fromCache`. Si no, lo servimos desde la red con [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch). La nueva API fetch tiende a reemplazar la famosa interfaz [`XMLHttpRequest`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) y además, es la única forma de realizar una petición desde un _SW_. Ninguna de las peticiones originadas en un _SW_ será jamás interceptada.
+El código anterior se explica por sí mismo: si la petición es un recurso, lo servimos desde la caché con la función `fromCache`. Si no, lo servimos desde la red con [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch). La nueva [_API fetch_](https://developer.mozilla.org/en/docs/Web/API/Fetch_API) tiende a reemplazar a la famosa interfaz [`XMLHttpRequest`](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest) y además, es la única forma de realizar una petición desde un _SW_. Ninguna de las peticiones originadas en un _SW_ será jamás interceptada.
 
 La función `fromCache` usa el método [`match`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/match) de las cachés para buscar una respuesta a la petición pasada como parámetro.
 
-Desactiva el modo _Offline_ y recarga el índice antes de continuar.
+La función `only` es una función auxiliar que produce una lista cuyo segundo elemento es una promesa resuelta. Se espera que se use dentro de la función `handleRequest` para indicar que no se necesita esperar por nada al atender el evento `fetch`.
+
+Desactiva el modo _Offline_ y vuelve al índice (`/`) antes de continuar.
 
 #### Red más actualización o alternativa offline
 
@@ -220,7 +223,7 @@ function handleRequest(request) {
   if (isAsset(request)) {
     return only(fromCache(request));
   }
-  if (isAction(request)) {
+  if (isIndex(request) || isAction(request)) {
     var offlinePage = isIndex(request) ? cachedIndex() : errorPage();
     return fetchAndUpdateIndex(request, offlinePage);  
   }
@@ -228,12 +231,16 @@ function handleRequest(request) {
 }
 ```
 
-En pocas palabras, si la petición no es un recurso, pero es una operación, lo que queremos es que llegue a la red. De no haber red, queremos poder dar una alternativa sin conexión. Esta alternativa dependerá de si estamos visitando la lista de recomendaciones o realizando una operación. En el primer caso devolveremos la lista más actualizada desde la caché. En el segundo mostraremos una pantalla de error dando la opción de volver a la lista. En caso de que la petición no sea ni un recurso, ni una acción, dejaremos que alcance la red normalmente.
+En palabras:
+
+  1. Si la petición es un recurso, sabemos que está en caché luego lo servimos desde la caché.
+  2. Si la petición es el índice o una operación sobre la _API_, queremos que llegue a la red. De no haber red, queremos poder dar una alternativa sin conexión. Esta alternativa dependerá de si estamos visitando el índice o realizando una operación sobre la _API_. En el primer caso devolveremos la lista más actualizada desde la caché. En el segundo mostraremos una pantalla de error, dando la opción de volver al índice.
+  3. En cualquier otro caso, dejaremos que la petición alcance la red normalmente.
 
 Añade el siguiente listado al final del archivo:
 
 ```js
-function isAction() {
+function isAction(request) {
   var url = new URL(request.url);
   return url.pathname.indexOf('/recommendations') === 0;
 }
@@ -275,7 +282,7 @@ function updateIndex(response) {
 }
 ```
 
-La función `fetchAndUpdateIndex` implementa toda la lógica de caché. Respondemos con la alternativa sin conexión cuando `fetch` falla o el servidor devuelve una respuesta _no OK_, lo que quiere decir que no está en el rango [`2XX`](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success). Si todo ha salido bien, usamos la respuesta para actualizar la entrada de caché que corresponde con el listado de recomendaciones (usando para ello el método [`put`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/put)) y para responder a la petición.
+La función `fetchAndUpdateIndex`, en particular `doRequest`, implementa toda la lógica de caché. Respondemos con la alternativa sin conexión cuando `fetch` falla o el servidor devuelve una respuesta _no OK_, lo que quiere decir que no está en el rango [`2XX`](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success). Si todo ha salido bien, `updateIndex` actualiza el índice (la lista de recomendaciones) con una copia de la petición, utilizando el método [`put`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/put)) de las cachés. La respuesta original se usa para responder al cliente.
 
 El cuerpo de una respuesta **sólo puede utilizarse una vez**, o se utiliza para representarse en el cliente o se utiliza para guardarse en la caché. Es por ello que copiamos la respuesta con [`clone`](https://developer.mozilla.org/en-US/docs/Web/API/Response/clone) antes de actualizar la caché.
 
@@ -287,9 +294,9 @@ Con estos cambios ya puedes pasar a modo _Offline_ y probar a visitar el índice
 
 ## 2. Escribiendo el manifiesto web
 
-El manifiesto web es un fichero JSON con un objeto de [claves bien conocidas](https://w3c.github.io/manifest/#manifest-and-its-members) que se enlaza desde nuestra página web de manera que el navegador obtenga la información contenida y la use para aquellos fines que crea convenientes. Entre ellos, una mejor integración con el sistema como veremos a continuación.
+El manifiesto web es un fichero _JSON_ que contiene un objeto con [claves bien conocidas](https://w3c.github.io/manifest/#manifest-and-its-members), y que se enlaza desde nuestra página web de manera que el navegador obtenga la información al cargar la cabecera de la página.
 
-No obstante, el manifiesto web también puede ser utilizado por los buscadores web que beneficiarse de la información contenida para mejorar la clasificación de estas páginas web.
+La información del manifiesto puede utilizarse para mejorar la integración del sitio web con el navegador o con el sistema operativo, aunque también puede ser utilizado por los buscadores web para mejorar la clasificación de estas páginas web.
 
 Crea un nuevo fichero en Glitch llamado `public/manifest.json` y añade el siguiente contenido:
 
@@ -303,7 +310,7 @@ Crea un nuevo fichero en Glitch llamado `public/manifest.json` y añade el sigui
   "display": "standalone",
   "icons": [
     {
-      "src": "https://cdn.glitch.com/6f34aba2-54dc-445d-bebc-39255a1b8c6b%2Ficon196.png?1500627723764",
+      "src": "https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ficon196.png?1500664388904",
       "sizes": "196x196",
       "type": "image/png"
     }
@@ -345,35 +352,39 @@ Lo que también se manifiesta en el cambiador de tareas:
 
 Con estas modificaciones, tu sitio web ya entra en las definiciones de _progressive web apps_ más extendidas. No obstante recuerda que las [_PWA_ no son una receta sino una herramienta](https://medium.com/samsung-internet-dev/progressive-web-apps-are-a-toolkit-not-a-recipe-b2fd68613de5).
 
-Las herramientas de desarrollador de Chrome incluyen, en la pestaña _Application_ y sección _Manifest_ una visualización de los distintos campos del mismo.
+Las herramientas de desarrollador de Chrome incluyen, en la pestaña _Application_ y sección _Manifest_, una visualización de los distintos campos del mismo.
 
 ### Conclusión
 
-## 3. Uso básico de notificaciones push
+## 3. Uso básico de notificaciones _push_
 
-Las notificaciones push tienen una interpretación doble: desde el punto de vista de red, una notificación push es una comunicación desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petición previa.
+Las notificaciones _push_ tienen una interpretación doble: desde el punto de vista de red, una notificación _push_ es una comunicación desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petición previa.
 
 ![Diagrama de una comunicación push del servidor al cliente]()
 
-Por otro lado, desde el punto de vista de la experiencia de usuario, una notificación push es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta información.
+Por otro lado, desde el punto de vista de la experiencia de usuario, una notificación _push_ es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta información.
 
 ![Diagrama de una comunicación push del cliente al usuario]()
 
-No es extraño encontrar una tercera definición que reúne estas dos y establece que cualquier comunicación iniciada en el servidor debe manifestarse ante el usuario. De hecho, los navegadores actuales fuerzan esta dependencia de forma que si no se muestra una notificación al usuario como respuesta a una notificación push proveniente del servidor, el navegador muestra una genérica.
+Lo común es encontrar una tercera definición que reúne estas dos y establece que cualquier comunicación iniciada en el servidor debe manifestarse ante el usuario. De hecho, los navegadores actuales fuerzan esta dependencia de forma que si no se muestra una notificación al usuario como respuesta a una notificación _push_ proveniente del servidor, el navegador muestra una genérica.
 
-Algunos navegadores estás experimentando con permitir algunas notificaciones silenciosas, que no interrumpan la acción del usuario.
+No obstante, algunos navegadores están experimentando con permitir algunas notificaciones silenciosas, que no interrumpan la acción del usuario.
 
 De todas formas, conviene conocer la diferencia entre el protocolo de red y la metáfora visual.
 
 ### Estableciendo la comunicación cliente-servidor
 
-**Nota**: configurar las notificaciones push para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores `gcm_sender_id` y `gcm_api_key` de una aplicación [Firebase](https://firebase.google.com/). Aunque se te propocionarán unos valores de prueba durante el talle, puedes crear tu propia aplicación Firebase y consultar esta [guía de TapJoy para saber dónde encontrarlos](http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/).
+**Nota**: configurar las notificaciones _push_ para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores `gcm_sender_id` y `gcm_api_key` de una aplicación [Firebase](https://firebase.google.com/). Aunque se te propocionarán unos valores de prueba durante el taller, puedes crear tu propia aplicación Firebase y consultar esta [guía de TapJoy para saber dónde encontrarlos](http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/).
 
 ---
 
-Comenzar a enviar notificaciones, sin el permiso explícito del usuario, podría resultar demasiado intrusivo. Es por ello que los navegadores obligan a pedir una subscripción explícitamente. En el momento en que el código del cliente pide una subscripción, el navegador pide permiso al usuario para recibir notificaciones.
+Comenzar a enviar notificaciones, sin el permiso explícito del usuario, podría llegar a ser molesto para el usuario. Por ello, los navegadores prefieren que el usuario otorgue permiso explícito para recibir notificaciones. En el código de cliente, esto se traduce a pedir una subscripción.
 
-Edita el fichero `public/client.js` y modifícalo para que quede así:
+Edita el fichero `public/manifest.json` y añade la clave `gcm_sender_id` con el valor que te proporcionarán en el taller o el que obtengas de tu aplicación Firebase.
+
+Recuerda que el código del fichero `public/client.js` es un recurso y, por tanto, se encuentra cacheado. Para que el código se actualice, tenemos que forzar la actualización del _service worker_ en cada recarga. Antes de editarlo, asegúrate de tener el interruptor _Update on reload_ (en la sección _Service Workers_ de la pestaña _Application_) activado.
+
+Ahora abre el fichero `public/client.js` y modifícalo para que quede así:
 
 ```js
 if ('serviceWorker' in navigator) {
@@ -384,30 +395,33 @@ if ('serviceWorker' in navigator) {
   .catch(function (e) { console.error('Parece que hubo algún problema:', e)});
 
   navigator.serviceWorker.ready.then(function (registration) {
-    return subscribeToNotifications(registration.pushManager);
+    if ('pushManager' in registration) {
+      return subscribeToNotifications(registration.pushManager);
+    }
   });
 }
 
 function subscribeToNotifications(pushManager) {
-  return pushManager.getSubscription(function (subscription) {
+  return pushManager.getSubscription()
+  .then(function (subscription) {
     if (subscription) {
       return subscription;
     }
-    return pushManager.subscribe();
+    return pushManager.subscribe({ userVisibleOnly: true });
   })
   .then(sendDetailsToTheServer);
 }
 
 function sendDetailsToTheServer(subscription) {
-  return fetch('/recommendations/subscribe', {
+  return fetch('/subscribe', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
       endpoint: subscription.endpoint,
-      key: toBase64(subscription.key),
-      auth: toBase64(subscription.auth)
+      key: toBase64(subscription.getKey('p256dh')),
+      auth: toBase64(subscription.getKey('auth'))
     })
   });
 }
@@ -418,15 +432,27 @@ function toBase64(target) {
 }
 ```
 
-Edita también el fichero `public/manifest.json` y añade la clave `gcm_sender_id` con el valor que te proporcionarán en el taller o el que obtengas de tu aplicación Firebase.
+Lo que estamos haciendo con este listado es pedir al **servicio de notificaciones del navegador** que nos proporcione una subscripción. Es decir, un canal seguro por el que transmitir información hacia el cliente.
 
-Lo que estamos haciendo ahora es pedir al servicio de notificaciones del navegador que nos proporcione una subscripción. Primero comprobamos que no exista ninguna anterior, que pudiéramos reciclar, con el método [`getSubscription`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager/getSubscription) de la interfaz [`PushManager`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager). En caso de no existir, pediremos una nueva subscripción con el método [`subscribe`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe).
+Primero comprobamos que no exista una subscripción anterior con el método [`getSubscription`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager/getSubscription) de la interfaz [`PushManager`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager). si existe, reciclaremos esta pero si no, pediremos una subscripción con el método [`subscribe`](https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe).
 
-No siempre es bueno pedir permiso nada más detectemos que no hay una subscripción. Si trabajáramos en un sitio web real, quizá debiéramos pedir una subscripción cuando sepamos algo más sobre el usuario. Igual cuando detectemos que no ha marcado ninguna recomendación durante semanas o, si se tratara de un blog, al detectar que el usuario termina de leer un artículo o al finalizar una compra con éxito si se tratase de un sitio de comercio _online_.
+El parámetro `userVisibleOnly` garantiza al navegador que siempre mostraremos una notificación al usuario. Esta es una restricción impuesta por el navegador Chrome.
+
+En el momento que llamamos a `subscribe`, el navegador comprueba los permisos otorgados por el usuario y pregunta en caso de que no exista el permiso para ese dominio.
+
+![Diálogo de petición del permiso]()
+
+Si el usuario deniega el permiso, no podremos volver a mostrar el diálogo. Por esto, conviene planificar el momento en el que pedimos el permiso y presentar la característica al usuario haciendo, por ejemplo, que la llamada a `subscribe` se produzca como consecuencia de una acción del usuario. Siempre será mejor preguntarle dos veces que perder la oportunidad de preguntarle para siempre.
+
+Si trabajáramos en un sitio web real, quizá debiéramos pedir permiso cuando sepamos algo más sobre el usuario: cuando detectemos que no ha marcado ninguna recomendación durante semanas o, si se tratara de un blog, al detectar que el usuario termina de leer un artículo, o al finalizar una compra con éxito, si se tratase de un sitio de comercio _online_.
 
 La subscripción incluye una _URL_ o _endpoint_ al que realizaremos las peticiones de envío de las notificaciones y unas claves necesarias para cifrar el contenido de las mismas.
 
-Fíjate en que la interfaz JavaScript que devuelve la subscripción sólo se comunica con el cliente y es necesario que el cliente comunique a su servidor los detalles de la subscripción, que es lo que se hace en la función `sendDetailsToTheServer`. Para ello utilizamos la interfaz [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch) de la que ya habíamos hablado anteriormente.
+Fíjate en que la interfaz JavaScript que devuelve la subscripción sólo se comunica con el navegador y es necesario que el cliente comunique a su servidor los detalles de la subscripción, que es lo que se hace en la función `sendDetailsToTheServer`. Para ello utilizamos la función  [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch) de la que ya habíamos hablado anteriormente.
+
+Pese a que aceptemos el permiso, la subscripción no funcionará. Si consultas la consola verás que el servidor responde con un error `404` puesto que la _API_ para realizar la subscripción aún no existe y no podemos comunicar los detalles de la subscripción a nuestro servidor:
+
+![La consola muestra un error 404]()
 
 Edita ahora el fichero del servidor `server.js` para que guarde los detalles de la subscripción. Añade la siguiente ruta justo antes de la declaración de `recommendations`:
 
@@ -436,15 +462,19 @@ app.post('/subscribe', function (request, response) {
     key: request.body.key,
     auth: request.body.auth
   };
-  request.sendStatus(201);
+  response.sendStatus(201);
 });
 
 var subscriptions = {};
 ```
 
+En la pestaña _Network_, puedes comprobar el resultado de la petición `POST` al servidor:
+
+![Detalle de la petición post que incluye el endpoint y las claves de cifrado]()
+
 ### Enviando notificaciones a los clientes
 
-¿Recuerdas la definición de notificación push? En este punto vamos a implementar la primera interpretación. Es decir, la comunicación que ocurre desde el servidor hacia el cliente.
+¿Recuerdas la definición de notificación _push_? En este punto vamos a implementar la primera interpretación. Es decir, la comunicación que ocurre desde el servidor hacia el cliente.
 
 Para ello modifica el código del archivo `server.js` para que haga uso de la biblioteca `WebPush` que abstrae los detalles acerca de cómo enviar notificaciones a través de una interfaz más amable. Comienza solicitando la biblioteca añadiendo la siguiente línea al comienzo del archivo:
 
@@ -505,14 +535,16 @@ La función `sendNotification` utiliza la biblioteca `webPush` para enviar una n
 
 La constante `NOTIFICATION_PERIOD` establece cada cuánto se lanzará una nueva notificación. Cuando hayamos comprobado que todo funciona podemos elevar este número a 48 horas o el tiempo que consideremos oportuno.
 
+Recuerda que, cuando modificas el servidor, Glitch relanza la aplicación y todas las subscripciones se pierden. Es necesario **recargar el cliente para que este envíe una nueva subscripción al servidor**.
+
 ### Mostrando la notificación al usuario
 
-Es difícil comprobar que, efectivamente, la notificación ha alcanzado al cliente porque este no la trata, no hay aún una asociación entre recibir una notificación desde el servidor y usar la interfaz de usuario para mostrarla.
+Es difícil comprobar que, efectivamente, la notificación ha alcanzado al cliente porque este no la trata: no hay aún una asociación entre recibir una notificación desde el servidor y usar la interfaz de usuario para mostrarla.
 
-Esto lo arreglaremos en el _service worker_. Lo que haremos será añadir un manejador para el evento [`push`](). Modifica el fichero del _SW_ `public/service-worker.js` y añade esto al final del mismo:
+Esto lo arreglaremos en el _service worker_. Lo que haremos será añadir un manejador para el evento [`push`](https://developer.mozilla.org/en-US/docs/Web/Events/push). Modifica el fichero del _SW_ `public/service-worker.js` y añade esto al final del mismo:
 
 ```js
-self.addEventListener('push', function (event) {
+self.addEventListener('push', event => {
   var payload = event.data.text();
   event.waitUntil(self.registration.showNotification('Recommendations', {
     body: payload
@@ -520,16 +552,20 @@ self.addEventListener('push', function (event) {
 });
 ```
 
-El método [`showNotification`]() mostrará la interfaz de usuario del sistema operativo asociada a una notificación. Como cuerpo de la notificación, utilizaremos el contenido de la notificación _push_ que está disponible a través de la propiedad [`data`](https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData) del evento.
+El método [`showNotification`](https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/showNotification) mostrará la interfaz de usuario del sistema operativo asociada a una notificación. Como cuerpo de la notificación, utilizaremos el contenido de la notificación _push_ que está disponible a través de la propiedad [`data`](https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData) del evento.
+
+Recuerda recargar el cliente para que envíe la información de su suscripción. Al cabo de 1 minuto deberías poder ver la notificación:
+
+![Detalle de la notificación]()
 
 ### Acción al pulsar en la notificación
 
-Las notificaciones pueden recibirse sin tener la pestaña abierta e incluso, sin tener el navegador abierto. Por ello, al hacer click sobre la notificación sería conveniente recuperar la pestaña con la aplicación o, en su defecto, abrir una vista nueva.
+Las notificaciones pueden recibirse sin tener la pestaña abierta e incluso, sin tener el navegador abierto. Por ello, al hacer click sobre la notificación sería conveniente recuperar la pestaña con la aplicación o, en su defecto, abrir una pestaña nueva.
 
 El evento [`notificationclick`](https://developer.mozilla.org/en-US/docs/Web/Events/notificationclick) nos permite responder a la pulsación sobre una notificación. Añade el siguiente listado al final del _SW_:
 
 ```js
-self.addEventListener('notificationclick', function (event) {
+self.addEventListener('notificationclick', event => {
   event.waitUntil(focusOnOpenTabOrNew());
 });
 
@@ -544,7 +580,7 @@ function focusOnOpenTabOrNew() {
 }
 ```
 
-Como en otras ocasiones, utilizamos `waitUntil` para mantener el _SW_ corriendo hasta que todas las operaciones asíncronas hayan terminado. Esta vez, utilizamos el método [`matchAll`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/matchAll) para recuperar un listado completo de todas las ventanas/pestañas controladas por el _SW_. Si no hay ninguna, gracias al método [`openWindow`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/openWindow) podemos abrir una pestaña nueva dónde indiquemos como parámetro. Si existe alguna, bastará con darle el foco de atención mediante su método [`focus`](https://developer.mozilla.org/en-US/docs/Web/API/Window/focus).
+Como en otras ocasiones, utilizamos `waitUntil` para mantener el _SW_ corriendo hasta que todas las operaciones asíncronas hayan terminado. Esta vez, utilizamos el método [`matchAll`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/matchAll) para recuperar un listado completo de todas las ventanas/pestañas controladas por el _SW_ (de ahí el parámetro `type`). Si no hay ninguna, abriremos una utilizando [`openWindow`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/openWindow). Si existe alguna, bastará con darle el foco de atención mediante su método [`focus`](https://developer.mozilla.org/en-US/docs/Web/API/Window/focus).
 
 ### Conclusión
 
