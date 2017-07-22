@@ -1,21 +1,21 @@
 
-## 1. Uso básico de service workers
+## 1. Uso básico de service workers {#service-workers}
 
 Un _service worker_ actúa como un proxy de red ejecutándose en el navegador: intercepta las peticiones HTTP que salen de nuestro sitio web hacia la red y puede contestar con cualquier tipo de contenido.
 
 En esta primera lección, vamos a preparar nuestra aplicación para que funcione incluso sin conexión a la red.
 
-### Creación del fichero y registro
+### Creación del fichero y registro {#registering}
 
 Lo primero que vamos a hacer en Glitch es crear un nuevo archivo cuyo nombre será `public/service-worker.js`. En él escribiremos el código que controla la intercepción de las peticiones.
 
-![En Glitch, al especificar el nombre, especificamos también la ruta]()
+![En Glitch, al especificar el nombre, especificamos también la ruta](../imgs/new-file.png)
 
 Visita tu aplicación haciendo click en `Show Live`, abre las herramientas de desarrollo y haz clic sobre la pestaña _Application_.
 
-![La pestaña aplicación]
-
 En la lista de la izquierda, haz clic en el item _Service Workers_ para comprobar que no hay ninguno asociado a ese origen.
+
+![La pestaña aplicación](../imgs/application-tab.png)
 
 Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. Así, `http://mozilla.org` y `https://mozilla.org` son orígenes distintos, como también lo son `localhost:8000` y `localhost:3333`.
 
@@ -39,15 +39,15 @@ Por supuesto, has de incluir el script en el punto de entrada HTML. En este caso
 
 Cuando tu aplicación se actualice, comprueba que en la consola aparece el mensaje de que todo ha ido bien y que en la sección _Service workers_ de la pestaña _Application_ se muestra el _service worker_ como aparece en la captura siguiente:
 
-![Si todo ha ido bien, el status del service worker indica _activated and is running_]()
+![Si todo ha ido bien, el status del service worker indica _activated and is running_](../imgs/service-worker-registered.png)
 
 Un _service worker_ sólo puede registrarse desde un origen seguro, que utilice [HTTPS](https://es.wikipedia.org/wiki/Hypertext_Transfer_Protocol_Secure). Puedes comprobar otros requerimientos rápidamente en la infografía [_Service Workers 101_](https://github.com/delapuente/service-workers-101#service-workers-101).
 
-### Instalación y activación del _service worker_
+### Instalación y activación del _service worker_ {#installation}
 
 Vamos a modificar el _service worker_ &mdash;de ahora en adelante _SW_&mdash; múltiples veces y cada vez que lo hagamos, Glitch relanzará nuestra aplicación. Es conveniente, por tanto, activar la opción _Update on reload_ del menú _Service Workers_ del panel _Application_ para garantizar que el _SW_ se actualiza en cada recarga.
 
-![Detalle del interruptor para activar la recarga al refrescar]()
+![Detalle del interruptor para activar la recarga al refrescar](../imgs/update-on-reload-detail.png)
 
 El panel de aplicación debería indicar que nuestro _SW_ funciona correctamente aunque todavía no haga nada. Durante la instalación, el _SW_ pasa por tres estados (que puedes revisar en la inforgrafía [_Service Workers 101_](https://github.com/delapuente/service-workers-101#service-workers-101)):
 
@@ -96,7 +96,7 @@ Durante la activación, utilizamos el método [`claim`](https://developer.mozill
 
 Aun no hemos escrito las funciones `addAssets` y `clearOldCaches`, por lo que el proceso de instalación falla en tiempo de ejecución y la instalación se interrumpe. Podéis ver los errores relacionados con la instalación del _SW_ bajo el estado, en la vista _Service Workers_, en la pestaña _Application_.
 
-![Detalle de los errores de instalación por la ausencia de las funciones]()
+![Detalle de los errores de instalación por la ausencia de las funciones](../imgs/service-worker-errors-detail.png)
 
 Antes de continuar, **borra los errores** y luego añade el siguiente listado con la implementación de las funciones que faltan:
 
@@ -132,15 +132,15 @@ La función `clearOldCaches` obtiene todas los nombres de las caches en el orige
 
 Si todo ha ido bien, no deberías ver nuevos errores bajo el estado del _service worker_. Si además haces click en el elemento _Cache storage_, deberías poder ver un listado de las caches y su contenido (haz click en el icono de refrescar si no aparece nada). Prueba a cambiar el número de versión para comprobar que el código funciona correctamente.
 
-![Cache offline y su contenido]
+![Cache offline y su contenido](../imgs/cache-contents.png)
 
-### Estrategias de cache
+### Estrategias de caché {#cache-strategies}
 
 Gracias a las cachés sin conexión ([_Offline Caches_](https://developer.mozilla.org/en-US/docs/Web/API/Cache)) hemos guardado los recursos necesarios para recrear la interfaz de usuario sin necesidad de estar conectados a la red; pero aun no le hemos dicho al _SW_ cuándo debe servir estos recursos. Por el momento, todas las peticiones alcanzan la red.
 
 Puedes ir al panel _Network_ en las herramientas de desarrollador y activar el interruptor _Offline_ para simular que no hay red. Realiza alguna acción o recarga y verás como la aplicación falla estrepitosamente.
 
-![Detalle del interruptor offline que simula la ausencia de red]()
+![Detalle del interruptor Offline que simula la ausencia de red](../imgs/offline-switch-detail.png)
 
 Sin modificar una sola línea en el código de la _UI_, nuestra intención es crear una capa de red, en el _service worker_, que responda de forma diferente según el tipo de petición y el estado de la conexión.
 
@@ -200,7 +200,7 @@ function only(promise) {
 
 Ve ahora a la pestaña _Network_ y limpia los logs. Recarga la pestaña manualmente y observa los resultados en la lista de peticiones. Verás como los recursos se sirven desde el _SW_:
 
-![En la columna size se lee "from service worker" indicando que el recurso se ha servidor desde un service worker]()
+![En la columna size se lee "from service worker" indicando que el recurso se ha servidor desde un service worker](../imgs/network-requests-from-service-worker.png)
 
 Date cuenta de que aunque se indique que el recurso se ha servido desde el _SW_, esto **no significa que se haya servido desde una caché**.
 
@@ -216,7 +216,7 @@ La función `only` es una función auxiliar que produce una lista cuyo segundo e
 
 Desactiva el modo _Offline_ y vuelve al índice (`/`) antes de continuar.
 
-#### Red más actualización o alternativa offline
+#### Estrategia _red más actualización o alternativa sin conexión_
 
 Veamos ahora cómo tratar las acciones. Modifica la función `handleRequest` para que quede de la siguiente forma:
 
@@ -290,11 +290,21 @@ El cuerpo de una respuesta **sólo puede utilizarse una vez**, o se utiliza para
 
 Con estos cambios ya puedes pasar a modo _Offline_ y probar a visitar el índice y a realizar alguna operación para alcanzar la página informativa.
 
-### Conclusión
+### Conclusión {#service-workers-conclusion}
 
+Antes de terminar la lección, comprueba:
 
+  * Que habiendo activado el interruptor _Offline_, puedes seguir accediendo al índice.
+  * Que realizar cualquier acción se traduce en la pantalla de error.
+  * Que puedes volver al índice desde la pantalla de error.
+  * Que no falta ninguna imagen.
+  * Si te sientes valiente, desconecta internet, cierra el navegador y prueba a entrar otra vez en el índice.
 
-## 2. Escribiendo el manifiesto web
+Los _service workers_ son una potentísima herramienta que permite la implementación de multitud de casos de uso. Su principal cometido es el de facilitar la [implementación de distintas estrategias de caché](https://jakearchibald.com/2014/offline-cookbook/) pero, por su naturaleza como proxy de red, también habilita [otros usos más allá de los convencionales](https://hacks.mozilla.org/2015/12/beyond-offline/).
+
+Si quieres explorar estos y otros usos de los _service workers_, te recomiendo que visites el [Service Worker Cookbook](https://serviceworke.rs).
+
+## 2. El manifiesto web {#web-manifest}
 
 El manifiesto web es un fichero _JSON_ que contiene un objeto con [claves bien conocidas](https://w3c.github.io/manifest/#manifest-and-its-members), y que se enlaza desde nuestra página web de manera que el navegador obtenga la información al cargar la cabecera de la página.
 
@@ -336,29 +346,22 @@ La lista `icons` contiene una lista de iconos con entradas para las distintas re
 
 Para una descripción completa y con ejemplos de los campos del manifiesto, puedes consultar [la página sobre el manifiesto web de la MDN](https://developer.mozilla.org/en-US/docs/Web/Manifest#Members).
 
-Visita tu aplicación desde el móvil usando Opera, Chrome o Samsung Internet, navegadores todos que ponen especial énfasis en la integración con el manifiesto y añade tu aplicación a la pantalla de inicio:
+Las herramientas de desarrollador de Chrome incluyen, en la pestaña _Application_ y sección _Manifest_, una visualización de los distintos campos del mismo.
 
-![Añadir la aplicación a la pantalla de inicio desde Chrome]()
+### Conclusión {#web-manifest-conclusion}
 
-Observa la _splashpage_ que genera Chrome gracias al color de fondo y la lista de iconos:
+Visita tu aplicación desde el móvil usando Opera, Chrome o Samsung Internet, navegadores que ponen especial énfasis en la integración con el manifiesto y añade tu aplicación a la pantalla de inicio:
 
-![Splashpage generada por Chrome]()
+![Integración con Android que ofrece Chrome](../imgs/android-integration.gif)
 
-Y fíjate en la ausencia de interfaz de usuario relacionada con el navegador:
-
-![En el modo standalone no hay interfaz del navegador, como barras de navegación o herramientas]()
-
-Lo que también se manifiesta en el cambiador de tareas:
-
-![En el modo standalone, la página web aparece como un elemento distinto del cambiador de tareas]()
+  * Observa la _splashpage_ que genera Chrome gracias al color de fondo y la lista de iconos.
+  * Fíjate en la ausencia de interfaz de usuario relacionada con el navegador.
+  * Y observa como la aplicación tiene su propio lugar en el cambiador de tareas.
 
 Con estas modificaciones, tu sitio web ya entra en las definiciones de _progressive web apps_ más extendidas. No obstante recuerda que las [_PWA_ no son una receta sino una herramienta](https://medium.com/samsung-internet-dev/progressive-web-apps-are-a-toolkit-not-a-recipe-b2fd68613de5).
 
-Las herramientas de desarrollador de Chrome incluyen, en la pestaña _Application_ y sección _Manifest_, una visualización de los distintos campos del mismo.
 
-### Conclusión
-
-## 3. Uso básico de notificaciones _push_
+## 3. Uso básico de notificaciones _push_ {#push-notifications}
 
 Las notificaciones _push_ tienen una interpretación doble: desde el punto de vista de red, una notificación _push_ es una comunicación desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petición previa.
 
@@ -374,7 +377,7 @@ No obstante, algunos navegadores están experimentando con permitir algunas noti
 
 De todas formas, conviene conocer la diferencia entre el protocolo de red y la metáfora visual.
 
-### Estableciendo la comunicación cliente-servidor
+### Estableciendo la comunicación cliente-servidor {#client-server}
 
 **Nota**: configurar las notificaciones _push_ para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores `gcm_sender_id` y `gcm_api_key` de una aplicación [Firebase](https://firebase.google.com/). Aunque se te propocionarán unos valores de prueba durante el taller, puedes crear tu propia aplicación Firebase y consultar esta [guía de TapJoy para saber dónde encontrarlos](http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/).
 
@@ -474,7 +477,7 @@ En la pestaña _Network_, puedes comprobar el resultado de la petición `POST` a
 
 ![Detalle de la petición post que incluye el endpoint y las claves de cifrado]()
 
-### Enviando notificaciones a los clientes
+### Enviando notificaciones a los clientes {#sending-notifications}
 
 ¿Recuerdas la definición de notificación _push_? En este punto vamos a implementar la primera interpretación. Es decir, la comunicación que ocurre desde el servidor hacia el cliente.
 
@@ -539,7 +542,7 @@ La constante `NOTIFICATION_PERIOD` establece cada cuánto se lanzará una nueva 
 
 Recuerda que, cuando modificas el servidor, Glitch relanza la aplicación y todas las subscripciones se pierden. Es necesario **recargar el cliente para que este envíe una nueva subscripción al servidor**.
 
-### Mostrando la notificación al usuario
+### Mostrando la notificación al usuario {#showing-notifications}
 
 Es difícil comprobar que, efectivamente, la notificación ha alcanzado al cliente porque este no la trata: no hay aún una asociación entre recibir una notificación desde el servidor y usar la interfaz de usuario para mostrarla.
 
@@ -560,7 +563,7 @@ Recuerda recargar el cliente para que envíe la información de su suscripción.
 
 ![Detalle de la notificación]()
 
-### Acción al pulsar en la notificación
+### Acción al pulsar en la notificación {#notification-action}
 
 Las notificaciones pueden recibirse sin tener la pestaña abierta e incluso, sin tener el navegador abierto. Por ello, al hacer click sobre la notificación sería conveniente recuperar la pestaña con la aplicación o, en su defecto, abrir una pestaña nueva.
 
@@ -584,6 +587,6 @@ function focusOnOpenTabOrNew() {
 
 Como en otras ocasiones, utilizamos `waitUntil` para mantener el _SW_ corriendo hasta que todas las operaciones asíncronas hayan terminado. Esta vez, utilizamos el método [`matchAll`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/matchAll) para recuperar un listado completo de todas las ventanas/pestañas controladas por el _SW_ (de ahí el parámetro `type`). Si no hay ninguna, abriremos una utilizando [`openWindow`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/openWindow). Si existe alguna, bastará con darle el foco de atención mediante su método [`focus`](https://developer.mozilla.org/en-US/docs/Web/API/Window/focus).
 
-### Conclusión
+### Conclusión {#push-notifications-conclusion}
 
 https://serviceworke.rs/web-push.html
