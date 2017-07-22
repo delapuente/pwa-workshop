@@ -365,11 +365,7 @@ Con estas modificaciones, tu sitio web ya entra en las definiciones de _progress
 
 Las notificaciones _push_ tienen una interpretación doble: desde el punto de vista de red, una notificación _push_ es una comunicación desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petición previa.
 
-![Diagrama de una comunicación push del servidor al cliente]()
-
 Por otro lado, desde el punto de vista de la experiencia de usuario, una notificación _push_ es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta información.
-
-![Diagrama de una comunicación push del cliente al usuario]()
 
 Lo común es encontrar una tercera definición que reúne estas dos y establece que cualquier comunicación iniciada en el servidor debe manifestarse ante el usuario. De hecho, los navegadores actuales fuerzan esta dependencia de forma que si no se muestra una notificación al usuario como respuesta a una notificación _push_ proveniente del servidor, el navegador muestra una genérica.
 
@@ -383,20 +379,24 @@ De todas formas, conviene conocer la diferencia entre el protocolo de red y la m
 
 ---
 
+**Nota**: vamos a modificar el el código del fichero `public/client.js`. Este fichero es un recurso y, por tanto, se encuentra cacheado. Para que el código se actualice, tenemos que hacer que el _service worker_ realice una nueva descarga del recurso durante la instalación. Antes de editarlo, asegúrate de tener el interruptor _Update on reload_ (en la sección _Service Workers_ de la pestaña _Application_) activado.
+
+También puedes borrar todos los datos asociados a la aplicación, en la sección _Clear storate_ de la pestaña _Application_.
+
+![Dejando todo marcado y haciendo clic en clear storage, reseteamos el estado de la aplicación, borrando cachés y service workers](../imgs/clear-storage.png)
+
+---
+
 Comenzar a enviar notificaciones, sin el permiso explícito del usuario, podría llegar a ser molesto para el usuario. Por ello, los navegadores prefieren que el usuario otorgue permiso explícito para recibir notificaciones. En el código de cliente, esto se traduce a pedir una subscripción.
 
 Edita el fichero `public/manifest.json` y añade la clave `gcm_sender_id` con el valor que te proporcionarán en el taller o el que obtengas de tu aplicación Firebase.
-
-Recuerda que el código del fichero `public/client.js` es un recurso y, por tanto, se encuentra cacheado. Para que el código se actualice, tenemos que forzar la actualización del _service worker_ en cada recarga. Antes de editarlo, asegúrate de tener el interruptor _Update on reload_ (en la sección _Service Workers_ de la pestaña _Application_) activado.
 
 Ahora abre el fichero `public/client.js` y modifícalo para que quede así:
 
 ```js
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js')
-  .then(function (registration) {
-    console.log('¡Service Worker registrado!');
-  })
+  .then(function (registration) { console.log('¡Service Worker registrado!'); })
   .catch(function (e) { console.error('Parece que hubo algún problema:', e)});
 
   navigator.serviceWorker.ready.then(function (registration) {
@@ -445,7 +445,7 @@ El parámetro `userVisibleOnly` garantiza al navegador que siempre mostraremos u
 
 En el momento que llamamos a `subscribe`, el navegador comprueba los permisos otorgados por el usuario y pregunta en caso de que no exista el permiso para ese dominio.
 
-![Diálogo de petición del permiso]()
+![Diálogo de petición del permiso](../imgs/push-permission.png)
 
 Si el usuario deniega el permiso, no podremos volver a mostrar el diálogo. Por esto, conviene planificar el momento en el que pedimos el permiso y presentar la característica al usuario haciendo, por ejemplo, que la llamada a `subscribe` se produzca como consecuencia de una acción del usuario. Siempre será mejor preguntarle dos veces que perder la oportunidad de preguntarle para siempre.
 
@@ -457,7 +457,7 @@ Fíjate en que la interfaz JavaScript que devuelve la subscripción sólo se com
 
 Pese a que aceptemos el permiso, la subscripción no funcionará. Si consultas la consola verás que el servidor responde con un error `404` puesto que la _API_ para realizar la subscripción aún no existe y no podemos comunicar los detalles de la subscripción a nuestro servidor:
 
-![La consola muestra un error 404]()
+![La consola muestra un error 404](../imgs/error-404.png)
 
 Edita ahora el fichero del servidor `server.js` para que guarde los detalles de la subscripción. Añade la siguiente ruta justo antes de la declaración de `recommendations`:
 
@@ -475,7 +475,7 @@ var subscriptions = {};
 
 En la pestaña _Network_, puedes comprobar el resultado de la petición `POST` al servidor:
 
-![Detalle de la petición post que incluye el endpoint y las claves de cifrado]()
+![Detalle de la petición post que incluye el endpoint y las claves de cifrado](../imgs/subscription-success.png)
 
 ### Enviando notificaciones a los clientes {#sending-notifications}
 
@@ -513,7 +513,7 @@ function scheduleNotification() {
 
 function getUncheckedRecommendations() {
   return recommendations.reduce(function (total, recommendation) {
-    return !recommendation.checked ? total + 1 : total;
+    return recommendation.unchecked ? total + 1 : total;
   }, 0);
 }
 
@@ -561,7 +561,7 @@ El método [`showNotification`](https://developer.mozilla.org/en-US/docs/Web/API
 
 Recuerda recargar el cliente para que envíe la información de su suscripción. Al cabo de 1 minuto deberías poder ver la notificación:
 
-![Detalle de la notificación]()
+![Detalle de la notificación](../imgs/notification-detail.png)
 
 ### Acción al pulsar en la notificación {#notification-action}
 
@@ -589,4 +589,19 @@ Como en otras ocasiones, utilizamos `waitUntil` para mantener el _SW_ corriendo 
 
 ### Conclusión {#push-notifications-conclusion}
 
-https://serviceworke.rs/web-push.html
+Has llegado al final del taller de aplicaciones progresivas. Antes de finalizar, comprueba:
+
+  1. Que recibes las notificaciones periódicamente.
+  2. Que si marcas como vistas todas tus recomendaciones, no recibes notificación.
+  3. Que recibes las notificaciones desde el móvil (incluso cuando el navegador no está abierto).
+  4. Que si cierras todas las pestañas, se abre una nueva al pulsar sobre la notificación.
+  5. Que si ya hay una pestaña abierta, esta recupera el foco tras pulsar sobre la notificación.
+
+Recuerda que puedes encontrar otras formas de utilizar las notificaciones _push_ en la [sección de notificaciones _push_ del Service Worker Cookbook](https://serviceworke.rs/web-push.html). Las notificaciones _push_ pueden convertirse en una herramienta de captación y conversión de clientes extraordinaria, pero también pueden llegar a resultar frustrantes para el usuario. Por ello, piensa:
+
+  1. Cuándo pedir permiso. Recuerda que sólo tienes una oportunidad de que el usuario te otorgue el permiso para notificar. Echa un vistazo a algunos [patrones de experiencia de usuario para pedir permiso]((https://developers.google.com/web/fundamentals/engage-and-retain/push-notifications/permission-ux)).
+  2. Cuándo mostrar las notificaciones. Para que las notificaciones no resulten frustrantes, estas deben ser [oportunas, relevantes y precisas](https://developers.google.com/web/fundamentals/engage-and-retain/push-notifications/).
+
+¡Enhorabuena! Has completado tu primera PWA partiendo de una aplicación web normal y corriente. Recuerda que las aplicaciones web progresivas son parte de la web y no necesitan seguir un patrón _single page application_ ni incluir complejos _frameworks_ JavaScript.
+
+Este taller ha presentado el uso de _service workers_, notificaciones _push_ y el manifiesto web pero debes de aplicar cada una de estas tecnologías por separado, pensando en las mejoras que desees incorporar a tu sitio web y en el marco de la mejora progresiva, para proporcionar una buena experiencia de usuario a todos tus clientes y una mejor experiencia a los usuarios de navegadores modernos.
