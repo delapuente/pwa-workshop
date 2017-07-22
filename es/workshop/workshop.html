@@ -721,24 +721,23 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>Con estas modificaciones, tu sitio web ya entra en las definiciones de <em>progressive web apps</em> m&#xE1;s extendidas. No obstante recuerda que las <a href="https://medium.com/samsung-internet-dev/progressive-web-apps-are-a-toolkit-not-a-recipe-b2fd68613de5" target="_blank"><em>PWA</em> no son una receta sino una herramienta</a>.</p>
 <h2 id="push-notifications">3. Uso b&#xE1;sico de notificaciones <em>push</em> </h2>
 <p>Las notificaciones <em>push</em> tienen una interpretaci&#xF3;n doble: desde el punto de vista de red, una notificaci&#xF3;n <em>push</em> es una comunicaci&#xF3;n desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petici&#xF3;n previa.</p>
-<p><img src="." alt="Diagrama de una comunicaci&#xF3;n push del servidor al cliente"></p>
 <p>Por otro lado, desde el punto de vista de la experiencia de usuario, una notificaci&#xF3;n <em>push</em> es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta informaci&#xF3;n.</p>
-<p><img src="." alt="Diagrama de una comunicaci&#xF3;n push del cliente al usuario"></p>
 <p>Lo com&#xFA;n es encontrar una tercera definici&#xF3;n que re&#xFA;ne estas dos y establece que cualquier comunicaci&#xF3;n iniciada en el servidor debe manifestarse ante el usuario. De hecho, los navegadores actuales fuerzan esta dependencia de forma que si no se muestra una notificaci&#xF3;n al usuario como respuesta a una notificaci&#xF3;n <em>push</em> proveniente del servidor, el navegador muestra una gen&#xE9;rica.</p>
 <p>No obstante, algunos navegadores est&#xE1;n experimentando con permitir algunas notificaciones silenciosas, que no interrumpan la acci&#xF3;n del usuario.</p>
 <p>De todas formas, conviene conocer la diferencia entre el protocolo de red y la met&#xE1;fora visual.</p>
 <h3 id="client-server">Estableciendo la comunicaci&#xF3;n cliente-servidor </h3>
 <p><strong>Nota</strong>: configurar las notificaciones <em>push</em> para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores <code>gcm_sender_id</code> y <code>gcm_api_key</code> de una aplicaci&#xF3;n <a href="https://firebase.google.com/" target="_blank">Firebase</a>. Aunque se te propocionar&#xE1;n unos valores de prueba durante el taller, puedes crear tu propia aplicaci&#xF3;n Firebase y consultar esta <a href="http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/" target="_blank">gu&#xED;a de TapJoy para saber d&#xF3;nde encontrarlos</a>.</p>
 <hr>
+<p><strong>Nota</strong>: vamos a modificar el el c&#xF3;digo del fichero <code>public/client.js</code>. Este fichero es un recurso y, por tanto, se encuentra cacheado. Para que el c&#xF3;digo se actualice, tenemos que hacer que el <em>service worker</em> realice una nueva descarga del recurso durante la instalaci&#xF3;n. Antes de editarlo, aseg&#xFA;rate de tener el interruptor <em>Update on reload</em> (en la secci&#xF3;n <em>Service Workers</em> de la pesta&#xF1;a <em>Application</em>) activado.</p>
+<p>Tambi&#xE9;n puedes borrar todos los datos asociados a la aplicaci&#xF3;n, en la secci&#xF3;n <em>Clear storate</em> de la pesta&#xF1;a <em>Application</em>.</p>
+<p><img src="../imgs/clear-storage.png" alt="Dejando todo marcado y haciendo clic en clear storage, reseteamos el estado de la aplicaci&#xF3;n, borrando cach&#xE9;s y service workers"></p>
+<hr>
 <p>Comenzar a enviar notificaciones, sin el permiso expl&#xED;cito del usuario, podr&#xED;a llegar a ser molesto para el usuario. Por ello, los navegadores prefieren que el usuario otorgue permiso expl&#xED;cito para recibir notificaciones. En el c&#xF3;digo de cliente, esto se traduce a pedir una subscripci&#xF3;n.</p>
 <p>Edita el fichero <code>public/manifest.json</code> y a&#xF1;ade la clave <code>gcm_sender_id</code> con el valor que te proporcionar&#xE1;n en el taller o el que obtengas de tu aplicaci&#xF3;n Firebase.</p>
-<p>Recuerda que el c&#xF3;digo del fichero <code>public/client.js</code> es un recurso y, por tanto, se encuentra cacheado. Para que el c&#xF3;digo se actualice, tenemos que forzar la actualizaci&#xF3;n del <em>service worker</em> en cada recarga. Antes de editarlo, aseg&#xFA;rate de tener el interruptor <em>Update on reload</em> (en la secci&#xF3;n <em>Service Workers</em> de la pesta&#xF1;a <em>Application</em>) activado.</p>
 <p>Ahora abre el fichero <code>public/client.js</code> y modif&#xED;calo para que quede as&#xED;:</p>
 <pre><code class="lang-js"><span class="hljs-keyword">if</span> (<span class="hljs-string">&apos;serviceWorker&apos;</span> <span class="hljs-keyword">in</span> navigator) {
   navigator.serviceWorker.register(<span class="hljs-string">&apos;/service-worker.js&apos;</span>)
-  .then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">registration</span>) </span>{
-    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&apos;&#xA1;Service Worker registrado!&apos;</span>);
-  })
+  .then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">registration</span>) </span>{ <span class="hljs-built_in">console</span>.log(<span class="hljs-string">&apos;&#xA1;Service Worker registrado!&apos;</span>); })
   .catch(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">e</span>) </span>{ <span class="hljs-built_in">console</span>.error(<span class="hljs-string">&apos;Parece que hubo alg&#xFA;n problema:&apos;</span>, e)});
 
   navigator.serviceWorker.ready.then(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">registration</span>) </span>{
@@ -782,13 +781,13 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>Primero comprobamos que no exista una subscripci&#xF3;n anterior con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/PushManager/getSubscription" target="_blank"><code>getSubscription</code></a> de la interfaz <a href="https://developer.mozilla.org/en-US/docs/Web/API/PushManager" target="_blank"><code>PushManager</code></a>. si existe, reciclaremos esta pero si no, pediremos una subscripci&#xF3;n con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/PushManager/subscribe" target="_blank"><code>subscribe</code></a>.</p>
 <p>El par&#xE1;metro <code>userVisibleOnly</code> garantiza al navegador que siempre mostraremos una notificaci&#xF3;n al usuario. Esta es una restricci&#xF3;n impuesta por el navegador Chrome.</p>
 <p>En el momento que llamamos a <code>subscribe</code>, el navegador comprueba los permisos otorgados por el usuario y pregunta en caso de que no exista el permiso para ese dominio.</p>
-<p><img src="." alt="Di&#xE1;logo de petici&#xF3;n del permiso"></p>
+<p><img src="../imgs/push-permission.png" alt="Di&#xE1;logo de petici&#xF3;n del permiso"></p>
 <p>Si el usuario deniega el permiso, no podremos volver a mostrar el di&#xE1;logo. Por esto, conviene planificar el momento en el que pedimos el permiso y presentar la caracter&#xED;stica al usuario haciendo, por ejemplo, que la llamada a <code>subscribe</code> se produzca como consecuencia de una acci&#xF3;n del usuario. Siempre ser&#xE1; mejor preguntarle dos veces que perder la oportunidad de preguntarle para siempre.</p>
 <p>Si trabaj&#xE1;ramos en un sitio web real, quiz&#xE1; debi&#xE9;ramos pedir permiso cuando sepamos algo m&#xE1;s sobre el usuario: cuando detectemos que no ha marcado ninguna recomendaci&#xF3;n durante semanas o, si se tratara de un blog, al detectar que el usuario termina de leer un art&#xED;culo, o al finalizar una compra con &#xE9;xito, si se tratase de un sitio de comercio <em>online</em>.</p>
 <p>La subscripci&#xF3;n incluye una <em>URL</em> o <em>endpoint</em> al que realizaremos las peticiones de env&#xED;o de las notificaciones y unas claves necesarias para cifrar el contenido de las mismas.</p>
 <p>F&#xED;jate en que la interfaz JavaScript que devuelve la subscripci&#xF3;n s&#xF3;lo se comunica con el navegador y es necesario que el cliente comunique a su servidor los detalles de la subscripci&#xF3;n, que es lo que se hace en la funci&#xF3;n <code>sendDetailsToTheServer</code>. Para ello utilizamos la funci&#xF3;n  <a href="https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/fetch" target="_blank"><code>fetch</code></a> de la que ya hab&#xED;amos hablado anteriormente.</p>
 <p>Pese a que aceptemos el permiso, la subscripci&#xF3;n no funcionar&#xE1;. Si consultas la consola ver&#xE1;s que el servidor responde con un error <code>404</code> puesto que la <em>API</em> para realizar la subscripci&#xF3;n a&#xFA;n no existe y no podemos comunicar los detalles de la subscripci&#xF3;n a nuestro servidor:</p>
-<p><img src="." alt="La consola muestra un error 404"></p>
+<p><img src="../imgs/error-404.png" alt="La consola muestra un error 404"></p>
 <p>Edita ahora el fichero del servidor <code>server.js</code> para que guarde los detalles de la subscripci&#xF3;n. A&#xF1;ade la siguiente ruta justo antes de la declaraci&#xF3;n de <code>recommendations</code>:</p>
 <pre><code class="lang-js">app.post(<span class="hljs-string">&apos;/subscribe&apos;</span>, <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">request, response</span>) </span>{
   subscriptions[request.body.endpoint] = {
@@ -801,7 +800,7 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <span class="hljs-keyword">var</span> subscriptions = {};
 </code></pre>
 <p>En la pesta&#xF1;a <em>Network</em>, puedes comprobar el resultado de la petici&#xF3;n <code>POST</code> al servidor:</p>
-<p><img src="." alt="Detalle de la petici&#xF3;n post que incluye el endpoint y las claves de cifrado"></p>
+<p><img src="../imgs/subscription-success.png" alt="Detalle de la petici&#xF3;n post que incluye el endpoint y las claves de cifrado"></p>
 <h3 id="sending-notifications">Enviando notificaciones a los clientes </h3>
 <p>&#xBF;Recuerdas la definici&#xF3;n de notificaci&#xF3;n <em>push</em>? En este punto vamos a implementar la primera interpretaci&#xF3;n. Es decir, la comunicaci&#xF3;n que ocurre desde el servidor hacia el cliente.</p>
 <p>Para ello modifica el c&#xF3;digo del archivo <code>server.js</code> para que haga uso de la biblioteca <code>WebPush</code> que abstrae los detalles acerca de c&#xF3;mo enviar notificaciones a trav&#xE9;s de una interfaz m&#xE1;s amable. Comienza solicitando la biblioteca a&#xF1;adiendo la siguiente l&#xED;nea al comienzo del archivo:</p>
@@ -831,7 +830,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getUncheckedRecommendations</span>(<span class="hljs-params"></span>) </span>{
   <span class="hljs-keyword">return</span> recommendations.reduce(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params">total, recommendation</span>) </span>{
-    <span class="hljs-keyword">return</span> !recommendation.checked ? total + <span class="hljs-number">1</span> : total;
+    <span class="hljs-keyword">return</span> recommendation.unchecked ? total + <span class="hljs-number">1</span> : total;
   }, <span class="hljs-number">0</span>);
 }
 
@@ -867,7 +866,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
 </code></pre>
 <p>El m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerRegistration/showNotification" target="_blank"><code>showNotification</code></a> mostrar&#xE1; la interfaz de usuario del sistema operativo asociada a una notificaci&#xF3;n. Como cuerpo de la notificaci&#xF3;n, utilizaremos el contenido de la notificaci&#xF3;n <em>push</em> que est&#xE1; disponible a trav&#xE9;s de la propiedad <a href="https://developer.mozilla.org/en-US/docs/Web/API/PushMessageData" target="_blank"><code>data</code></a> del evento.</p>
 <p>Recuerda recargar el cliente para que env&#xED;e la informaci&#xF3;n de su suscripci&#xF3;n. Al cabo de 1 minuto deber&#xED;as poder ver la notificaci&#xF3;n:</p>
-<p><img src="." alt="Detalle de la notificaci&#xF3;n"></p>
+<p><img src="../imgs/notification-detail.png" alt="Detalle de la notificaci&#xF3;n"></p>
 <h3 id="notification-action">Acci&#xF3;n al pulsar en la notificaci&#xF3;n </h3>
 <p>Las notificaciones pueden recibirse sin tener la pesta&#xF1;a abierta e incluso, sin tener el navegador abierto. Por ello, al hacer click sobre la notificaci&#xF3;n ser&#xED;a conveniente recuperar la pesta&#xF1;a con la aplicaci&#xF3;n o, en su defecto, abrir una pesta&#xF1;a nueva.</p>
 <p>El evento <a href="https://developer.mozilla.org/en-US/docs/Web/Events/notificationclick" target="_blank"><code>notificationclick</code></a> nos permite responder a la pulsaci&#xF3;n sobre una notificaci&#xF3;n. A&#xF1;ade el siguiente listado al final del <em>SW</em>:</p>
@@ -887,7 +886,21 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
 </code></pre>
 <p>Como en otras ocasiones, utilizamos <code>waitUntil</code> para mantener el <em>SW</em> corriendo hasta que todas las operaciones as&#xED;ncronas hayan terminado. Esta vez, utilizamos el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Clients/matchAll" target="_blank"><code>matchAll</code></a> para recuperar un listado completo de todas las ventanas/pesta&#xF1;as controladas por el <em>SW</em> (de ah&#xED; el par&#xE1;metro <code>type</code>). Si no hay ninguna, abriremos una utilizando <a href="https://developer.mozilla.org/en-US/docs/Web/API/Clients/openWindow" target="_blank"><code>openWindow</code></a>. Si existe alguna, bastar&#xE1; con darle el foco de atenci&#xF3;n mediante su m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/focus" target="_blank"><code>focus</code></a>.</p>
 <h3 id="push-notifications-conclusion">Conclusi&#xF3;n </h3>
-<p><a href="https://serviceworke.rs/web-push.html" target="_blank">https://serviceworke.rs/web-push.html</a></p>
+<p>Has llegado al final del taller de aplicaciones progresivas. Antes de finalizar, comprueba:</p>
+<ol>
+<li>Que recibes las notificaciones peri&#xF3;dicamente.</li>
+<li>Que si marcas como vistas todas tus recomendaciones, no recibes notificaci&#xF3;n.</li>
+<li>Que recibes las notificaciones desde el m&#xF3;vil (incluso cuando el navegador no est&#xE1; abierto).</li>
+<li>Que si cierras todas las pesta&#xF1;as, se abre una nueva al pulsar sobre la notificaci&#xF3;n.</li>
+<li>Que si ya hay una pesta&#xF1;a abierta, esta recupera el foco tras pulsar sobre la notificaci&#xF3;n.</li>
+</ol>
+<p>Recuerda que puedes encontrar otras formas de utilizar las notificaciones <em>push</em> en la <a href="https://serviceworke.rs/web-push.html" target="_blank">secci&#xF3;n de notificaciones <em>push</em> del Service Worker Cookbook</a>. Las notificaciones <em>push</em> pueden convertirse en una herramienta de captaci&#xF3;n y conversi&#xF3;n de clientes extraordinaria, pero tambi&#xE9;n pueden llegar a resultar frustrantes para el usuario. Por ello, piensa:</p>
+<ol>
+<li>Cu&#xE1;ndo pedir permiso. Recuerda que s&#xF3;lo tienes una oportunidad de que el usuario te otorgue el permiso para notificar. Echa un vistazo a algunos <a href="(https:/developers.google.com/web/fundamentals/engage-and-retain/push-notifications/permission-ux">patrones de experiencia de usuario para pedir permiso</a>).</li>
+<li>Cu&#xE1;ndo mostrar las notificaciones. Para que las notificaciones no resulten frustrantes, estas deben ser <a href="https://developers.google.com/web/fundamentals/engage-and-retain/push-notifications/" target="_blank">oportunas, relevantes y precisas</a>.</li>
+</ol>
+<p>&#xA1;Enhorabuena! Has completado tu primera PWA partiendo de una aplicaci&#xF3;n web normal y corriente. Recuerda que las aplicaciones web progresivas son parte de la web y no necesitan seguir un patr&#xF3;n <em>single page application</em> ni incluir complejos <em>frameworks</em> JavaScript.</p>
+<p>Este taller ha presentado el uso de <em>service workers</em>, notificaciones <em>push</em> y el manifiesto web pero debes de aplicar cada una de estas tecnolog&#xED;as por separado, pensando en las mejoras que desees incorporar a tu sitio web y en el marco de la mejora progresiva, para proporcionar una buena experiencia de usuario a todos tus clientes y una mejor experiencia a los usuarios de navegadores modernos.</p>
 
                                 
                                 </section>
@@ -927,7 +940,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Uso básico de service workers","level":"2.1","depth":1,"next":{"title":"Creación del fichero y registro","level":"2.1.1","depth":2,"anchor":"#registering","path":"workshop/workshop.md","ref":"workshop/workshop.md#registering","articles":[]},"previous":{"title":"Recursos en Glitch","level":"1.4","depth":1,"ref":"","articles":[]},"dir":"ltr"},"config":{"plugins":[],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"language":"es","gitbook":"*"},"file":{"path":"workshop/workshop.md","mtime":"2017-07-22T17:07:30.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-07-22T17:10:11.457Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Uso básico de service workers","level":"2.1","depth":1,"next":{"title":"Creación del fichero y registro","level":"2.1.1","depth":2,"anchor":"#registering","path":"workshop/workshop.md","ref":"workshop/workshop.md#registering","articles":[]},"previous":{"title":"Recursos en Glitch","level":"1.4","depth":1,"ref":"","articles":[]},"dir":"ltr"},"config":{"plugins":[],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"language":"es","gitbook":"*"},"file":{"path":"workshop/workshop.md","mtime":"2017-07-22T18:22:32.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-07-22T18:23:19.215Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
