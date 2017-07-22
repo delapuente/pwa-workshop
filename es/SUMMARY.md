@@ -1,13 +1,8 @@
 # Índice
 
-## Glitch
-
-- Remezclando un proyecto
-- Las bases de Glitch
-- Recursos en Glitch
-
 ## Taller
 
+- [Introducción](workshop/workshop.md#intro)
 - [Uso básico de service workers](workshop/workshop.md#service-workers)
   - [Creación del fichero y registro](workshop/workshop.md#registering)
   - [Instalación y activación del service worker](workshop/workshop.md#installation)

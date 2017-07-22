@@ -1,3 +1,6 @@
+## Introducción {#intro}
+
+
 
 ## 1. Uso básico de service workers {#service-workers}
 
@@ -13,7 +16,7 @@ Lo primero que vamos a hacer en Glitch es crear un nuevo archivo cuyo nombre ser
 
 Visita tu aplicación haciendo click en `Show Live`, abre las herramientas de desarrollo y haz clic sobre la pestaña _Application_.
 
-En la lista de la izquierda, haz clic en el item _Service Workers_ para comprobar que no hay ninguno asociado a ese origen.
+En la lista de la izquierda, haz clic en el elemento _Service Workers_ para comprobar que no hay ninguno asociado a ese origen.
 
 ![La pestaña aplicación](../imgs/application-tab.png)
 
@@ -602,6 +605,8 @@ Recuerda que puedes encontrar otras formas de utilizar las notificaciones _push_
   1. Cuándo pedir permiso. Recuerda que sólo tienes una oportunidad de que el usuario te otorgue el permiso para notificar. Echa un vistazo a algunos [patrones de experiencia de usuario para pedir permiso]((https://developers.google.com/web/fundamentals/engage-and-retain/push-notifications/permission-ux)).
   2. Cuándo mostrar las notificaciones. Para que las notificaciones no resulten frustrantes, estas deben ser [oportunas, relevantes y precisas](https://developers.google.com/web/fundamentals/engage-and-retain/push-notifications/).
 
-¡Enhorabuena! Has completado tu primera PWA partiendo de una aplicación web normal y corriente. Recuerda que las aplicaciones web progresivas son parte de la web y no necesitan seguir un patrón _single page application_ ni incluir complejos _frameworks_ JavaScript.
+---
 
-Este taller ha presentado el uso de _service workers_, notificaciones _push_ y el manifiesto web pero debes de aplicar cada una de estas tecnologías por separado, pensando en las mejoras que desees incorporar a tu sitio web y en el marco de la mejora progresiva, para proporcionar una buena experiencia de usuario a todos tus clientes y una mejor experiencia a los usuarios de navegadores modernos.
+¡Enhorabuena! Has completado tu primera _PWA_ partiendo de una aplicación web sin JavaScript. Recuerda que las aplicaciones web progresivas son parte de la Web y no necesitan seguir un patrón _single page application_ ni incluir complejos _frameworks_ JavaScript.
+
+Este taller ha presentado el uso de _service workers_, notificaciones _push_ y el manifiesto web pero debes de aplicar cada una de estas tecnologías por separado, pensando en las mejoras que desees incorporar a tu sitio web, en el marco de la mejora progresiva, para proporcionar una buena experiencia a todos tus usuarios y una mejor experiencia a los usuarios de la Web moderna.
