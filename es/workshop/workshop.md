@@ -1,6 +1,97 @@
-## Introducción {#intro}
+## Introducción a la aplicación {#intro}
 
+_Recommendations_ es una aplicación web pensada para mantener una lista de recomendaciones. Con _Recommendations_ podemos marcar una recomendación como revisada o favorita.
 
+---
+
+_Recommendations_ es un sitio web dinámico a la vieja usanza: no contiene una sola línea de JavaScript en el cliente y depende únicamente de su servidor web [Node.js](https://nodejs.org/en/), basado en [Express](https://expressjs.com/). El servidor realiza la composición de la lista de recomendaciones utilizando plantillas [handlebars](http://handlebarsjs.com/).
+
+Por simplicidad, el servidor no posee gestión de sesiones; tampoco forma alguna de persistencia y no proporciona una gestión adecuada de los errores por lo que no debe considerarse su uso en producción.
+
+Esto implica que tendréis que [trabajar con vuestra propia remezcla del proyecto en Glitch](https://glitch.com/~pwa-workshop) para no interferir unos con otros y que al modificar el fichero del servidor, este se reiniciará y **se perderán todos los cambios en las recomendaciones**.
+
+### Código en el cliente
+
+Para la comunicación con el servidor, la aplicación usa elementos `form` y el servidor responde realizando la operación pertinente y devolviendo siempre la lista de recomendaciones tomando como plantilla el fichero `views/index.html`. En este sentido, la aplicación puede considerarse _de una sóla vista_ pero no encaja en la definición clásica de _single page application_ desde el momento en el que realmente navegamos a otras direcciones.
+
+La lista posee dos tipos de formularios: uno en la cabecera para enviar una nueva recomendación y otro por cada recomendación para actualizar su estado.
+
+El formulario para añadir una nueva recomendación contiene los campos para el título y el tipo de recomendación, y el botón añadir, para enviar el formulario. Al enviarse, se realiza una petición `POST` sobre `/recommendations`.
+
+```html
+<form class="new-recommendation" method="POST" action="/recommendations">
+  <div class="offset title-area">
+    <input id="title-input" name="title" type="text" required>
+    <label for="title-input">Enter new recommendation&hellip;</label>
+  </div>
+  <div>
+    <select name="type">
+      <option value="movie">movie</option>
+      <option value="show">show</option>
+      <option value="music">music</option>
+      <option value="game">game</option>
+      <option value="reading">reading</option>
+    </select>
+    <button class="add-new" type="submit" aria-label="Add">&nbsp;</button>
+  </div>
+</form>
+```
+
+Cada recomendación contiene otro formulario, generado dinámicamente desde el servidor, que realiza una petición `POST` sobre su _URL_, de la forma `/recommendations/<id>`.
+
+```html
+<form method="POST" action="/recommendations/{{id}}">
+  <div class="custom-checkbox">
+    <input name="status" value="unchecked" {{#if unchecked}}checked{{/if}} type="radio" aria-label="I've not checked it yet" /><span></span>
+  </div>
+  <div class="custom-checkbox">
+    <input name="status" value="checked" {{#if checked}}checked{{/if}} type="radio" aria-label="I've checked it" /><span></span>
+  </div>
+  <div class="custom-checkbox">
+    <input name="status" value="liked" {{#if liked}}checked{{/if}} type="radio" aria-label="I liked it" /><span></span>
+  </div>
+  <input type="submit" class="update-item" aria-label="Save" value="OK!" />
+</form>
+```
+
+### Código en el servidor
+
+Como cualquier otra aplicación Express, el servidor es un conjunto de operaciones sobre rutas que emiten un resultado:
+
+```js
+app.get('/', renderList);
+app.get('/recommendations', renderList);
+app.get('/recommendations/:id', renderList);
+
+app.post('/recommendations', function (request, response) {
+  const { type, title } = request.body;
+  recommendations.push(newRecommendation(type, title));
+  renderList(request, response);
+});
+
+app.post('/recommendations/:id', function (request, response) {
+  const unchecked = request.body.status === 'unchecked';
+  const checked = request.body.status === 'checked';
+  const liked = request.body.status === 'liked';
+  const index = find(parseInt(request.params.id), recommendations);
+  recommendations[index].unchecked = unchecked;
+  recommendations[index].checked = checked;
+  recommendations[index].liked = liked;
+  renderList(request, response);
+});
+```
+
+Tres operaciones `GET` gobiernan la visualización de la lista y no realizan ninguna operación. Las operaciones `POST`, además de devolver la lista, realizan la gestión de las recomendaciones.
+
+La función `renderList` envía la lista basándose en la plantilla `views/index.html`:
+
+```js
+function renderList (request, response) {
+  response.render(__dirname + '/views/index.html', {
+    recommendations: sort(recommendations)
+  });
+}
+```
 
 ## 1. Uso básico de service workers {#service-workers}
 
