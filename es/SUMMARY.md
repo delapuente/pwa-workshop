@@ -1,5 +1,16 @@
 # Índice
 
+- [Motivación](README.md)
+
+## Glitch
+
+- [¿Qué es Glitch?](environment/glitch.md#glitch)
+- [Remezclar un proyecto](environment/glitch.md#remix)
+- [Visualizar el proyecto](environment/glitch.md#show)
+- [Editar el proyecto](environment/glitch.md#edit)
+- [Compartir el código del proyecto](environment/glitch.md#share)
+- [Subir nuevos recursos](environment/glitch.md#assets)
+
 ## Taller
 
 - [Introducción](workshop/workshop.md#intro)
