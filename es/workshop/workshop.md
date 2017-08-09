@@ -16,7 +16,7 @@ Para la comunicación con el servidor, la aplicación usa elementos `form` y el 
 
 La lista posee dos tipos de formularios: uno en la cabecera para enviar una nueva recomendación y otro por cada recomendación para actualizar su estado.
 
-El formulario para añadir una nueva recomendación contiene los campos para el título y el tipo de recomendación, y el botón añadir, para enviar el formulario. Al enviarse, se realiza una petición `POST` sobre `/recommendations`.
+El formulario para añadir una nueva recomendación contiene los campos para el título y el tipo de recomendación. También incluye el botón añadir, para enviar el formulario. Al enviarse, se realiza una petición `POST` sobre `/recommendations`.
 
 ```html
 <form class="new-recommendation" method="POST" action="/recommendations">
@@ -97,7 +97,7 @@ function renderList (request, response) {
 
 Un _service worker_ actúa como un proxy de red ejecutándose en el navegador: intercepta las peticiones HTTP que salen de nuestro sitio web hacia la red y puede contestar con cualquier tipo de contenido.
 
-En esta primera lección, vamos a preparar nuestra aplicación para que funcione incluso sin conexión a la red.
+En esta primera lección, vamos a preparar nuestra aplicación para que funcione sin conexión a la red.
 
 ### Creación del fichero y registro {#registering}
 
@@ -111,7 +111,7 @@ En la lista de la izquierda, haz clic en el elemento _Service Workers_ para comp
 
 ![La pestaña aplicación](../imgs/application-tab.png)
 
-Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. Así, `http://mozilla.org` y `https://mozilla.org` son orígenes distintos, como también lo son `localhost:8000` y `localhost:3333`.
+Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. Así, `http://mozilla.org`, `https://mozilla.org` y `https://hacks.mozilla.org/` son orígenes distintos, como también lo son `localhost:8000` y `localhost:3333`.
 
 Un service worker debe registrarse desde el hilo principal. Edita `public/client.js` y añade el siguiente código:
 
@@ -163,11 +163,14 @@ var ASSETS = [
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Finvisible-black.svg?1500733601054',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign-black.svg?1500733601379',
   'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ficon196.png?1500664388904',
+  'https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Fplus-black-symbol.svg?1499350618348',
   'https://fonts.googleapis.com/css?family=Poppins',
   'https://fonts.gstatic.com/s/poppins/v2/HUuNgGR31mqIHE6zs0BlBgLUuEpTyoUstqEm5AMlJo4.woff2',
   '/client.js',
   '/style.css',
   '/error-page.html',
+  '/recommendations/', // For the cache, these URLs are different. You need both
+  '/recommendations',  // to manage them automatically.
   '/'
 ];
 
@@ -188,7 +191,7 @@ Entre la instalación y la activación, el navegador espera a que todos los clie
 
 Durante la activación, utilizamos el método [`claim`](https://developer.mozilla.org/en-US/docs/Web/API/Clients/claim) para hacer que el _SW_ intercepte todas las peticiones originadas en los clientes activos (pestañas ya abiertas, otros _workers_&hellip;) a partir de ahora.
 
-Aun no hemos escrito las funciones `addAssets` y `clearOldCaches`, por lo que el proceso de instalación falla en tiempo de ejecución y la instalación se interrumpe. Podéis ver los errores relacionados con la instalación del _SW_ bajo el estado, en la vista _Service Workers_, en la pestaña _Application_.
+Aun no hemos escrito las funciones `addAssets` y `clearOldCaches`, por lo que el proceso de instalación falla en tiempo de ejecución y **la instalación se interrumpe**. Podéis ver los errores relacionados con la instalación del _SW_ bajo el estado, en la vista _Service Workers_, en la pestaña _Application_.
 
 ![Detalle de los errores de instalación por la ausencia de las funciones](../imgs/service-worker-errors-detail.png)
 
@@ -222,7 +225,7 @@ Ls función `addAssets` acepta una lista de recursos (_assets_), y con el métod
 
 La lista de recursos `ASSETS` contiene los iconos de la aplicación, la hoja de estilos, el código JavaScript del cliente (exceptuando el _SW_), las fuentes, la página de error y el índice.
 
-La función `clearOldCaches` obtiene todas los nombres de las caches en el origen con el método [`keys`](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage/keys), reconoce las propias y borra las antiguas con el método [`delete`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/delete).
+La función `clearOldCaches` obtiene, con el método [`keys`](https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage/keys), todos los nombres de las caches en el origen, reconoce las propias y borra las antiguas con el método [`delete`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/delete).
 
 Si todo ha ido bien, no deberías ver nuevos errores bajo el estado del _service worker_. Si además haces click en el elemento _Cache storage_, deberías poder ver un listado de las caches y su contenido (haz click en el icono de refrescar si no aparece nada). Prueba a cambiar el número de versión para comprobar que el código funciona correctamente.
 
@@ -250,7 +253,7 @@ self.addEventListener('fetch', event => {
 });
 ```
 
-La función `handleRequest` será la encargada de implementar esta capa de red y devolverá una lista con dos promesas. El método [`respondWith`](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith) consume la primera, que debe resolverse con un objeto del tipo [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) y será entregado al navegador para que sirva de respuesta a la petición. De nuevo, utilizaremos [`waitUntil`](https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil) para extender la vida del _SW_ hasta que la segunda promesa de la lista se resuelva.
+La función `handleRequest` será la encargada de implementar esta capa de red y devolverá una lista con dos promesas. El método [`respondWith`](https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith) consumirá la primera, que debe resolverse con un objeto del tipo [`Response`](https://developer.mozilla.org/en-US/docs/Web/API/Response) y será entregado al navegador para que sirva de respuesta a la petición. De nuevo, utilizaremos [`waitUntil`](https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil) para extender la vida del _SW_ hasta que la segunda promesa de la lista se resuelva.
 
 Los _service workers_ están pensados para realizar una tarea concreta y cerrarse de forma que no consuman recursos innecesarios. Dada su naturaleza asíncrona, no se puede determinar de antemano cuándo un _service worker_ ha terminado. Es por ello que utilizamos `waitUntil` con una promesa. Tal promesa expresa que **todas las acciones que queremos realizar han terminado**.
 
@@ -272,7 +275,8 @@ function handleRequest(request) {
 
 function isAsset(request) {
   var url = new URL(request.url);
-  return !isIndex(request) &&
+  return request.method === 'GET' &&
+         !isIndex(request) &&
          (ASSETS.indexOf(url.href) >= 0 ||
          ASSETS.indexOf(url.pathname) >= 0);
 }
@@ -338,7 +342,8 @@ Añade el siguiente listado al final del archivo:
 ```js
 function isAction(request) {
   var url = new URL(request.url);
-  return url.pathname.indexOf('/recommendations') === 0;
+  return request.method === 'POST' &&
+         url.pathname.indexOf('/recommendations') === 0;
 }
 
 function cachedIndex() {
@@ -378,11 +383,11 @@ function updateIndex(response) {
 }
 ```
 
-La función `fetchAndUpdateIndex`, en particular `doRequest`, implementa toda la lógica de caché. Respondemos con la alternativa sin conexión cuando `fetch` falla o el servidor devuelve una respuesta _no OK_, lo que quiere decir que no está en el rango [`2XX`](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success). Si todo ha salido bien, `updateIndex` actualiza el índice (la lista de recomendaciones) con una copia de la petición, utilizando el método [`put`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/put)) de las cachés. La respuesta original se usa para responder al cliente.
+La función `fetchAndUpdateIndex`, en particular, la función auxiliar interna `doRequest`, implementa buena parte de la lógica de caché. Respondemos con la alternativa sin conexión cuando `fetch` falla o el servidor devuelve una respuesta _no OK_, lo que quiere decir que no está en el rango [`2XX`](https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success). Si todo ha salido bien, `updateIndex` actualiza el índice (la lista de recomendaciones) con una copia de la petición, utilizando el método [`put`](https://developer.mozilla.org/en-US/docs/Web/API/Cache/put)) de las cachés. La respuesta original se usa para responder al cliente.
 
 El cuerpo de una respuesta **sólo puede utilizarse una vez**, o se utiliza para representarse en el cliente o se utiliza para guardarse en la caché. Es por ello que copiamos la respuesta con [`clone`](https://developer.mozilla.org/en-US/docs/Web/API/Response/clone) antes de actualizar la caché.
 
-Con estos cambios ya puedes pasar a modo _Offline_ y probar a visitar el índice y a realizar alguna operación para alcanzar la página informativa.
+**Recarga la aplicación** y con estos cambios ya puedes pasar a modo _Offline_ y probar a visitar el índice y a realizar alguna operación para alcanzar la página informativa.
 
 ### Conclusión {#service-workers-conclusion}
 
@@ -399,6 +404,12 @@ Los _service workers_ son una potentísima herramienta que permite la implementa
 Si quieres explorar estos y otros usos de los _service workers_, te recomiendo que visites el [Service Worker Cookbook](https://serviceworke.rs).
 
 ## 2. El manifiesto web {#web-manifest}
+
+**Nota**: si no pudiste completar el paso anterior, ¡no te bloquees! [Remezcla el proyecto una vez añadido el service worker](https://glitch.com/~pwa-workshop-step2) y continúa en casa con el anterior.
+
+---
+
+Antes de comenzar la lección, asegúrate de que el modo _Offline_ está desactivado.
 
 El manifiesto web es un fichero _JSON_ que contiene un objeto con [claves bien conocidas](https://w3c.github.io/manifest/#manifest-and-its-members), y que se enlaza desde nuestra página web de manera que el navegador obtenga la información al cargar la cabecera de la página.
 
@@ -444,7 +455,7 @@ Las herramientas de desarrollador de Chrome incluyen, en la pestaña _Applicatio
 
 ### Conclusión {#web-manifest-conclusion}
 
-Visita tu aplicación desde el móvil usando Opera, Chrome o Samsung Internet, navegadores que ponen especial énfasis en la integración con el manifiesto y añade tu aplicación a la pantalla de inicio:
+Visita tu aplicación desde el móvil usando Chrome, navegador que pone especial énfasis en la integración con el manifiesto, y añade tu aplicación a la pantalla de inicio:
 
 ![Integración con Android que ofrece Chrome](../imgs/android-integration.gif)
 
@@ -457,6 +468,10 @@ Con estas modificaciones, tu sitio web ya entra en las definiciones de _progress
 
 ## 3. Uso básico de notificaciones _push_ {#push-notifications}
 
+**Nota**: si no pudiste completar el paso anterior, ¡no te preocupes! [Remezcla el proyecto una vez añadido el manifiesto web](https://glitch.com/~pwa-workshop-step3) y continúa cuando puedas con el anterior.
+
+---
+
 Las notificaciones _push_ tienen una interpretación doble: desde el punto de vista de red, una notificación _push_ es una comunicación desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petición previa.
 
 Por otro lado, desde el punto de vista de la experiencia de usuario, una notificación _push_ es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta información.
@@ -465,7 +480,7 @@ Lo común es encontrar una tercera definición que reúne estas dos y establece 
 
 No obstante, algunos navegadores están experimentando con permitir algunas notificaciones silenciosas, que no interrumpan la acción del usuario.
 
-De todas formas, conviene conocer la diferencia entre el protocolo de red y la metáfora visual.
+Por esto y por precisión, conviene conocer la diferencia entre el protocolo de red y la metáfora visual.
 
 ### Estableciendo la comunicación cliente-servidor {#client-server}
 
@@ -636,6 +651,8 @@ La constante `NOTIFICATION_PERIOD` establece cada cuánto se lanzará una nueva 
 
 Recuerda que, cuando modificas el servidor, Glitch relanza la aplicación y todas las subscripciones se pierden. Es necesario **recargar el cliente para que este envíe una nueva subscripción al servidor**.
 
+No te esfuerces. No vas a ver nada en este momento. Sigue leyendo para saber por qué.
+
 ### Mostrando la notificación al usuario {#showing-notifications}
 
 Es difícil comprobar que, efectivamente, la notificación ha alcanzado al cliente porque este no la trata: no hay aún una asociación entre recibir una notificación desde el servidor y usar la interfaz de usuario para mostrarla.
@@ -701,3 +718,5 @@ Recuerda que puedes encontrar otras formas de utilizar las notificaciones _push_
 ¡Enhorabuena! Has completado tu primera _PWA_ partiendo de una aplicación web sin JavaScript. Recuerda que las aplicaciones web progresivas son parte de la Web y no necesitan seguir un patrón _single page application_ ni incluir complejos _frameworks_ JavaScript.
 
 Este taller ha presentado el uso de _service workers_, notificaciones _push_ y el manifiesto web pero debes de aplicar cada una de estas tecnologías por separado, pensando en las mejoras que desees incorporar a tu sitio web, en el marco de la mejora progresiva, para proporcionar una buena experiencia a todos tus usuarios y una mejor experiencia a los usuarios de la Web moderna.
+
+Si quieres experimentar con la aplicación completa, puedes [remezclar el proyecto terminado](https://glitch.com/~recommendations) o experimentar con él en https://recommendations.glitch.me

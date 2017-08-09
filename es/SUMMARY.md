@@ -1,6 +1,6 @@
 # Índice
 
-- [Motivación](README.md)
+- [El taller](README.md)
 
 ## Glitch
 
