@@ -1,5 +1,7 @@
 # PWA Workshop
 
+[Check online](https://delapuente.github.io/pwa-workshop/)
+
 ## Build the ebook
 
 This project uses **Node** and **npm scripts** to build and perform some tasks. You will need to have both Node and npm installed in your system.
