@@ -96,7 +96,7 @@
                 <a href="../">
             
                     
-                    Motivación
+                    El taller
             
                 </a>
             
@@ -522,7 +522,7 @@
 <h3 id="c&#xF3;digo-en-el-cliente">C&#xF3;digo en el cliente</h3>
 <p>Para la comunicaci&#xF3;n con el servidor, la aplicaci&#xF3;n usa elementos <code>form</code> y el servidor responde realizando la operaci&#xF3;n pertinente y devolviendo siempre la lista de recomendaciones tomando como plantilla el fichero <code>views/index.html</code>. En este sentido, la aplicaci&#xF3;n puede considerarse <em>de una s&#xF3;la vista</em> pero no encaja en la definici&#xF3;n cl&#xE1;sica de <em>single page application</em> desde el momento en el que realmente navegamos a otras direcciones.</p>
 <p>La lista posee dos tipos de formularios: uno en la cabecera para enviar una nueva recomendaci&#xF3;n y otro por cada recomendaci&#xF3;n para actualizar su estado.</p>
-<p>El formulario para a&#xF1;adir una nueva recomendaci&#xF3;n contiene los campos para el t&#xED;tulo y el tipo de recomendaci&#xF3;n, y el bot&#xF3;n a&#xF1;adir, para enviar el formulario. Al enviarse, se realiza una petici&#xF3;n <code>POST</code> sobre <code>/recommendations</code>.</p>
+<p>El formulario para a&#xF1;adir una nueva recomendaci&#xF3;n contiene los campos para el t&#xED;tulo y el tipo de recomendaci&#xF3;n. Tambi&#xE9;n incluye el bot&#xF3;n a&#xF1;adir, para enviar el formulario. Al enviarse, se realiza una petici&#xF3;n <code>POST</code> sobre <code>/recommendations</code>.</p>
 <pre><code class="lang-html"><span class="hljs-tag">&lt;<span class="hljs-name">form</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;new-recommendation&quot;</span> <span class="hljs-attr">method</span>=<span class="hljs-string">&quot;POST&quot;</span> <span class="hljs-attr">action</span>=<span class="hljs-string">&quot;/recommendations&quot;</span>&gt;</span>
   <span class="hljs-tag">&lt;<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">&quot;offset title-area&quot;</span>&gt;</span>
     <span class="hljs-tag">&lt;<span class="hljs-name">input</span> <span class="hljs-attr">id</span>=<span class="hljs-string">&quot;title-input&quot;</span> <span class="hljs-attr">name</span>=<span class="hljs-string">&quot;title&quot;</span> <span class="hljs-attr">type</span>=<span class="hljs-string">&quot;text&quot;</span> <span class="hljs-attr">required</span>&gt;</span>
@@ -587,14 +587,14 @@ app.post(<span class="hljs-string">&apos;/recommendations/:id&apos;</span>, <spa
 </code></pre>
 <h2 id="service-workers">1. Uso b&#xE1;sico de service workers </h2>
 <p>Un <em>service worker</em> act&#xFA;a como un proxy de red ejecut&#xE1;ndose en el navegador: intercepta las peticiones HTTP que salen de nuestro sitio web hacia la red y puede contestar con cualquier tipo de contenido.</p>
-<p>En esta primera lecci&#xF3;n, vamos a preparar nuestra aplicaci&#xF3;n para que funcione incluso sin conexi&#xF3;n a la red.</p>
+<p>En esta primera lecci&#xF3;n, vamos a preparar nuestra aplicaci&#xF3;n para que funcione sin conexi&#xF3;n a la red.</p>
 <h3 id="registering">Creaci&#xF3;n del fichero y registro </h3>
 <p>Lo primero que vamos a hacer en Glitch es crear un nuevo archivo cuyo nombre ser&#xE1; <code>public/service-worker.js</code>. En &#xE9;l escribiremos el c&#xF3;digo que controla la intercepci&#xF3;n de las peticiones.</p>
 <p><img src="../imgs/new-file.png" alt="En Glitch, al especificar el nombre, especificamos tambi&#xE9;n la ruta"></p>
 <p>Visita tu aplicaci&#xF3;n haciendo click en <code>Show Live</code>, abre las herramientas de desarrollo y haz clic sobre la pesta&#xF1;a <em>Application</em>.</p>
 <p>En la lista de la izquierda, haz clic en el elemento <em>Service Workers</em> para comprobar que no hay ninguno asociado a ese origen.</p>
 <p><img src="../imgs/application-tab.png" alt="La pesta&#xF1;a aplicaci&#xF3;n"></p>
-<p>Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. As&#xED;, <code>http://mozilla.org</code> y <code>https://mozilla.org</code> son or&#xED;genes distintos, como tambi&#xE9;n lo son <code>localhost:8000</code> y <code>localhost:3333</code>.</p>
+<p>Recuerda que un origen no es lo mismo que un dominio. El origen es el protocolo junto con el nombre de dominio y el puerto. As&#xED;, <code>http://mozilla.org</code>, <code>https://mozilla.org</code> y <code>https://hacks.mozilla.org/</code> son or&#xED;genes distintos, como tambi&#xE9;n lo son <code>localhost:8000</code> y <code>localhost:3333</code>.</p>
 <p>Un service worker debe registrarse desde el hilo principal. Edita <code>public/client.js</code> y a&#xF1;ade el siguiente c&#xF3;digo:</p>
 <pre><code class="lang-js"><span class="hljs-keyword">if</span> (<span class="hljs-string">&apos;serviceWorker&apos;</span> <span class="hljs-keyword">in</span> navigator) {
   navigator.serviceWorker.register(<span class="hljs-string">&apos;/service-worker.js&apos;</span>)
@@ -630,11 +630,14 @@ app.post(<span class="hljs-string">&apos;/recommendations/:id&apos;</span>, <spa
   <span class="hljs-string">&apos;https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Finvisible-black.svg?1500733601054&apos;</span>,
   <span class="hljs-string">&apos;https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ftick-sign-black.svg?1500733601379&apos;</span>,
   <span class="hljs-string">&apos;https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Ficon196.png?1500664388904&apos;</span>,
+  <span class="hljs-string">&apos;https://cdn.glitch.com/aa6a5f34-4aee-4eae-807f-ca86f623e58a%2Fplus-black-symbol.svg?1499350618348&apos;</span>,
   <span class="hljs-string">&apos;https://fonts.googleapis.com/css?family=Poppins&apos;</span>,
   <span class="hljs-string">&apos;https://fonts.gstatic.com/s/poppins/v2/HUuNgGR31mqIHE6zs0BlBgLUuEpTyoUstqEm5AMlJo4.woff2&apos;</span>,
   <span class="hljs-string">&apos;/client.js&apos;</span>,
   <span class="hljs-string">&apos;/style.css&apos;</span>,
   <span class="hljs-string">&apos;/error-page.html&apos;</span>,
+  <span class="hljs-string">&apos;/recommendations/&apos;</span>, <span class="hljs-comment">// For the cache, these URLs are different. You need both</span>
+  <span class="hljs-string">&apos;/recommendations&apos;</span>,  <span class="hljs-comment">// to manage them automatically.</span>
   <span class="hljs-string">&apos;/&apos;</span>
 ];
 
@@ -650,7 +653,7 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>El m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil" target="_blank"><code>waitUntil</code></a> de los eventos <code>install</code> y <code>activate</code> permite extender las fases de instalaci&#xF3;n y activaci&#xF3;n respectivamente, hasta que la promesa pasada como par&#xE1;metro se resuelva.</p>
 <p>Entre la instalaci&#xF3;n y la activaci&#xF3;n, el navegador espera a que todos los clientes actualmente controlados por un <em>service worker</em> se cierren, antes de activar el siguiente. Con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting" target="_blank"><code>skipWaiting</code></a> podemos acelerar el proceso evitando la espera del <em>SW</em>.</p>
 <p>Durante la activaci&#xF3;n, utilizamos el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Clients/claim" target="_blank"><code>claim</code></a> para hacer que el <em>SW</em> intercepte todas las peticiones originadas en los clientes activos (pesta&#xF1;as ya abiertas, otros <em>workers</em>&#x2026;) a partir de ahora.</p>
-<p>Aun no hemos escrito las funciones <code>addAssets</code> y <code>clearOldCaches</code>, por lo que el proceso de instalaci&#xF3;n falla en tiempo de ejecuci&#xF3;n y la instalaci&#xF3;n se interrumpe. Pod&#xE9;is ver los errores relacionados con la instalaci&#xF3;n del <em>SW</em> bajo el estado, en la vista <em>Service Workers</em>, en la pesta&#xF1;a <em>Application</em>.</p>
+<p>Aun no hemos escrito las funciones <code>addAssets</code> y <code>clearOldCaches</code>, por lo que el proceso de instalaci&#xF3;n falla en tiempo de ejecuci&#xF3;n y <strong>la instalaci&#xF3;n se interrumpe</strong>. Pod&#xE9;is ver los errores relacionados con la instalaci&#xF3;n del <em>SW</em> bajo el estado, en la vista <em>Service Workers</em>, en la pesta&#xF1;a <em>Application</em>.</p>
 <p><img src="../imgs/service-worker-errors-detail.png" alt="Detalle de los errores de instalaci&#xF3;n por la ausencia de las funciones"></p>
 <p>Antes de continuar, <strong>borra los errores</strong> y luego a&#xF1;ade el siguiente listado con la implementaci&#xF3;n de las funciones que faltan:</p>
 <pre><code class="lang-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">addAssets</span>(<span class="hljs-params"></span>) </span>{
@@ -677,7 +680,7 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 </code></pre>
 <p>Ls funci&#xF3;n <code>addAssets</code> acepta una lista de recursos (<em>assets</em>), y con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage/open" target="_blank"><code>open</code></a>, abre una nueva cach&#xE9; (cre&#xE1;ndola si no exist&#xED;a) donde a&#xF1;adir estos recursos. Para ello utiliza el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Cache/addAll" target="_blank"><code>addAll</code></a> de la cach&#xE9;.</p>
 <p>La lista de recursos <code>ASSETS</code> contiene los iconos de la aplicaci&#xF3;n, la hoja de estilos, el c&#xF3;digo JavaScript del cliente (exceptuando el <em>SW</em>), las fuentes, la p&#xE1;gina de error y el &#xED;ndice.</p>
-<p>La funci&#xF3;n <code>clearOldCaches</code> obtiene todas los nombres de las caches en el origen con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage/keys" target="_blank"><code>keys</code></a>, reconoce las propias y borra las antiguas con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Cache/delete" target="_blank"><code>delete</code></a>.</p>
+<p>La funci&#xF3;n <code>clearOldCaches</code> obtiene, con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/CacheStorage/keys" target="_blank"><code>keys</code></a>, todos los nombres de las caches en el origen, reconoce las propias y borra las antiguas con el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Cache/delete" target="_blank"><code>delete</code></a>.</p>
 <p>Si todo ha ido bien, no deber&#xED;as ver nuevos errores bajo el estado del <em>service worker</em>. Si adem&#xE1;s haces click en el elemento <em>Cache storage</em>, deber&#xED;as poder ver un listado de las caches y su contenido (haz click en el icono de refrescar si no aparece nada). Prueba a cambiar el n&#xFA;mero de versi&#xF3;n para comprobar que el c&#xF3;digo funciona correctamente.</p>
 <p><img src="../imgs/cache-contents.png" alt="Cache offline y su contenido"></p>
 <h3 id="cache-strategies">Estrategias de cach&#xE9; </h3>
@@ -694,7 +697,7 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
   event.waitUntil(completion);
 });
 </code></pre>
-<p>La funci&#xF3;n <code>handleRequest</code> ser&#xE1; la encargada de implementar esta capa de red y devolver&#xE1; una lista con dos promesas. El m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith" target="_blank"><code>respondWith</code></a> consume la primera, que debe resolverse con un objeto del tipo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank"><code>Response</code></a> y ser&#xE1; entregado al navegador para que sirva de respuesta a la petici&#xF3;n. De nuevo, utilizaremos <a href="https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil" target="_blank"><code>waitUntil</code></a> para extender la vida del <em>SW</em> hasta que la segunda promesa de la lista se resuelva.</p>
+<p>La funci&#xF3;n <code>handleRequest</code> ser&#xE1; la encargada de implementar esta capa de red y devolver&#xE1; una lista con dos promesas. El m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/FetchEvent/respondWith" target="_blank"><code>respondWith</code></a> consumir&#xE1; la primera, que debe resolverse con un objeto del tipo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response" target="_blank"><code>Response</code></a> y ser&#xE1; entregado al navegador para que sirva de respuesta a la petici&#xF3;n. De nuevo, utilizaremos <a href="https://developer.mozilla.org/en-US/docs/Web/API/ExtendableEvent/waitUntil" target="_blank"><code>waitUntil</code></a> para extender la vida del <em>SW</em> hasta que la segunda promesa de la lista se resuelva.</p>
 <p>Los <em>service workers</em> est&#xE1;n pensados para realizar una tarea concreta y cerrarse de forma que no consuman recursos innecesarios. Dada su naturaleza as&#xED;ncrona, no se puede determinar de antemano cu&#xE1;ndo un <em>service worker</em> ha terminado. Es por ello que utilizamos <code>waitUntil</code> con una promesa. Tal promesa expresa que <strong>todas las acciones que queremos realizar han terminado</strong>.</p>
 <p>Por el mismo motivo, no se puede confiar en el estado global de un <em>service worker</em> <em>como mecanismo de persistencia</em> dado que, tarde o temprano, el navegador lo eliminar&#xE1; y el estado global se perder&#xE1;. Esto no significa que no podamos confiar en el estado global <em>para compartir valores comunes e inmutables</em> (como el listado de <code>ASSETTS</code>).</p>
 <h4 id="estrategia-s&#xF3;lo-cach&#xE9;">Estrategia <em>s&#xF3;lo cach&#xE9;</em></h4>
@@ -709,7 +712,8 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isAsset</span>(<span class="hljs-params">request</span>) </span>{
   <span class="hljs-keyword">var</span> url = <span class="hljs-keyword">new</span> URL(request.url);
-  <span class="hljs-keyword">return</span> !isIndex(request) &amp;&amp;
+  <span class="hljs-keyword">return</span> request.method === <span class="hljs-string">&apos;GET&apos;</span> &amp;&amp;
+         !isIndex(request) &amp;&amp;
          (ASSETS.indexOf(url.href) &gt;= <span class="hljs-number">0</span> ||
          ASSETS.indexOf(url.pathname) &gt;= <span class="hljs-number">0</span>);
 }
@@ -759,7 +763,8 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>A&#xF1;ade el siguiente listado al final del archivo:</p>
 <pre><code class="lang-js"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">isAction</span>(<span class="hljs-params">request</span>) </span>{
   <span class="hljs-keyword">var</span> url = <span class="hljs-keyword">new</span> URL(request.url);
-  <span class="hljs-keyword">return</span> url.pathname.indexOf(<span class="hljs-string">&apos;/recommendations&apos;</span>) === <span class="hljs-number">0</span>;
+  <span class="hljs-keyword">return</span> request.method === <span class="hljs-string">&apos;POST&apos;</span> &amp;&amp;
+         url.pathname.indexOf(<span class="hljs-string">&apos;/recommendations&apos;</span>) === <span class="hljs-number">0</span>;
 }
 
 <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cachedIndex</span>(<span class="hljs-params"></span>) </span>{
@@ -798,9 +803,9 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
   .then(cache =&gt; cache.put(<span class="hljs-string">&apos;/&apos;</span>, response));
 }
 </code></pre>
-<p>La funci&#xF3;n <code>fetchAndUpdateIndex</code>, en particular <code>doRequest</code>, implementa toda la l&#xF3;gica de cach&#xE9;. Respondemos con la alternativa sin conexi&#xF3;n cuando <code>fetch</code> falla o el servidor devuelve una respuesta <em>no OK</em>, lo que quiere decir que no est&#xE1; en el rango <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success" target="_blank"><code>2XX</code></a>. Si todo ha salido bien, <code>updateIndex</code> actualiza el &#xED;ndice (la lista de recomendaciones) con una copia de la petici&#xF3;n, utilizando el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Cache/put" target="_blank"><code>put</code></a>) de las cach&#xE9;s. La respuesta original se usa para responder al cliente.</p>
+<p>La funci&#xF3;n <code>fetchAndUpdateIndex</code>, en particular, la funci&#xF3;n auxiliar interna <code>doRequest</code>, implementa buena parte de la l&#xF3;gica de cach&#xE9;. Respondemos con la alternativa sin conexi&#xF3;n cuando <code>fetch</code> falla o el servidor devuelve una respuesta <em>no OK</em>, lo que quiere decir que no est&#xE1; en el rango <a href="https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#2xx_Success" target="_blank"><code>2XX</code></a>. Si todo ha salido bien, <code>updateIndex</code> actualiza el &#xED;ndice (la lista de recomendaciones) con una copia de la petici&#xF3;n, utilizando el m&#xE9;todo <a href="https://developer.mozilla.org/en-US/docs/Web/API/Cache/put" target="_blank"><code>put</code></a>) de las cach&#xE9;s. La respuesta original se usa para responder al cliente.</p>
 <p>El cuerpo de una respuesta <strong>s&#xF3;lo puede utilizarse una vez</strong>, o se utiliza para representarse en el cliente o se utiliza para guardarse en la cach&#xE9;. Es por ello que copiamos la respuesta con <a href="https://developer.mozilla.org/en-US/docs/Web/API/Response/clone" target="_blank"><code>clone</code></a> antes de actualizar la cach&#xE9;.</p>
-<p>Con estos cambios ya puedes pasar a modo <em>Offline</em> y probar a visitar el &#xED;ndice y a realizar alguna operaci&#xF3;n para alcanzar la p&#xE1;gina informativa.</p>
+<p><strong>Recarga la aplicaci&#xF3;n</strong> y con estos cambios ya puedes pasar a modo <em>Offline</em> y probar a visitar el &#xED;ndice y a realizar alguna operaci&#xF3;n para alcanzar la p&#xE1;gina informativa.</p>
 <h3 id="service-workers-conclusion">Conclusi&#xF3;n </h3>
 <p>Antes de terminar la lecci&#xF3;n, comprueba:</p>
 <ul>
@@ -813,6 +818,9 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>Los <em>service workers</em> son una potent&#xED;sima herramienta que permite la implementaci&#xF3;n de multitud de casos de uso. Su principal cometido es el de facilitar la <a href="https://jakearchibald.com/2014/offline-cookbook/" target="_blank">implementaci&#xF3;n de distintas estrategias de cach&#xE9;</a> pero, por su naturaleza como proxy de red, tambi&#xE9;n habilita <a href="https://hacks.mozilla.org/2015/12/beyond-offline/" target="_blank">otros usos m&#xE1;s all&#xE1; de los convencionales</a>.</p>
 <p>Si quieres explorar estos y otros usos de los <em>service workers</em>, te recomiendo que visites el <a href="https://serviceworke.rs" target="_blank">Service Worker Cookbook</a>.</p>
 <h2 id="web-manifest">2. El manifiesto web </h2>
+<p><strong>Nota</strong>: si no pudiste completar el paso anterior, &#xA1;no te bloquees! <a href="https://glitch.com/~pwa-workshop-step2" target="_blank">Remezcla el proyecto una vez a&#xF1;adido el service worker</a> y contin&#xFA;a en casa con el anterior.</p>
+<hr>
+<p>Antes de comenzar la lecci&#xF3;n, aseg&#xFA;rate de que el modo <em>Offline</em> est&#xE1; desactivado.</p>
 <p>El manifiesto web es un fichero <em>JSON</em> que contiene un objeto con <a href="https://w3c.github.io/manifest/#manifest-and-its-members" target="_blank">claves bien conocidas</a>, y que se enlaza desde nuestra p&#xE1;gina web de manera que el navegador obtenga la informaci&#xF3;n al cargar la cabecera de la p&#xE1;gina.</p>
 <p>La informaci&#xF3;n del manifiesto puede utilizarse para mejorar la integraci&#xF3;n del sitio web con el navegador o con el sistema operativo, aunque tambi&#xE9;n puede ser utilizado por los buscadores web para mejorar la clasificaci&#xF3;n de estas p&#xE1;ginas web.</p>
 <p>Crea un nuevo fichero en Glitch llamado <code>public/manifest.json</code> y a&#xF1;ade el siguiente contenido:</p>
@@ -842,7 +850,7 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 <p>Para una descripci&#xF3;n completa y con ejemplos de los campos del manifiesto, puedes consultar <a href="https://developer.mozilla.org/en-US/docs/Web/Manifest#Members" target="_blank">la p&#xE1;gina sobre el manifiesto web de la MDN</a>.</p>
 <p>Las herramientas de desarrollador de Chrome incluyen, en la pesta&#xF1;a <em>Application</em> y secci&#xF3;n <em>Manifest</em>, una visualizaci&#xF3;n de los distintos campos del mismo.</p>
 <h3 id="web-manifest-conclusion">Conclusi&#xF3;n </h3>
-<p>Visita tu aplicaci&#xF3;n desde el m&#xF3;vil usando Opera, Chrome o Samsung Internet, navegadores que ponen especial &#xE9;nfasis en la integraci&#xF3;n con el manifiesto y a&#xF1;ade tu aplicaci&#xF3;n a la pantalla de inicio:</p>
+<p>Visita tu aplicaci&#xF3;n desde el m&#xF3;vil usando Chrome, navegador que pone especial &#xE9;nfasis en la integraci&#xF3;n con el manifiesto, y a&#xF1;ade tu aplicaci&#xF3;n a la pantalla de inicio:</p>
 <p><img src="../imgs/android-integration.gif" alt="Integraci&#xF3;n con Android que ofrece Chrome"></p>
 <ul>
 <li>Observa la <em>splashpage</em> que genera Chrome gracias al color de fondo y la lista de iconos.</li>
@@ -851,11 +859,13 @@ self.addEventListener(<span class="hljs-string">&apos;activate&apos;</span>, eve
 </ul>
 <p>Con estas modificaciones, tu sitio web ya entra en las definiciones de <em>progressive web apps</em> m&#xE1;s extendidas. No obstante recuerda que las <a href="https://medium.com/samsung-internet-dev/progressive-web-apps-are-a-toolkit-not-a-recipe-b2fd68613de5" target="_blank"><em>PWA</em> no son una receta sino una herramienta</a>.</p>
 <h2 id="push-notifications">3. Uso b&#xE1;sico de notificaciones <em>push</em> </h2>
+<p><strong>Nota</strong>: si no pudiste completar el paso anterior, &#xA1;no te preocupes! <a href="https://glitch.com/~pwa-workshop-step3" target="_blank">Remezcla el proyecto una vez a&#xF1;adido el manifiesto web</a> y contin&#xFA;a cuando puedas con el anterior.</p>
+<hr>
 <p>Las notificaciones <em>push</em> tienen una interpretaci&#xF3;n doble: desde el punto de vista de red, una notificaci&#xF3;n <em>push</em> es una comunicaci&#xF3;n desde el servidor al cliente, iniciada por el servidor sin que el cliente haya realizado una petici&#xF3;n previa.</p>
 <p>Por otro lado, desde el punto de vista de la experiencia de usuario, una notificaci&#xF3;n <em>push</em> es un elemento de interfaz cuya finalidad es interrumpir levemente la actividad del usuario para comunicar cierta informaci&#xF3;n.</p>
 <p>Lo com&#xFA;n es encontrar una tercera definici&#xF3;n que re&#xFA;ne estas dos y establece que cualquier comunicaci&#xF3;n iniciada en el servidor debe manifestarse ante el usuario. De hecho, los navegadores actuales fuerzan esta dependencia de forma que si no se muestra una notificaci&#xF3;n al usuario como respuesta a una notificaci&#xF3;n <em>push</em> proveniente del servidor, el navegador muestra una gen&#xE9;rica.</p>
 <p>No obstante, algunos navegadores est&#xE1;n experimentando con permitir algunas notificaciones silenciosas, que no interrumpan la acci&#xF3;n del usuario.</p>
-<p>De todas formas, conviene conocer la diferencia entre el protocolo de red y la met&#xE1;fora visual.</p>
+<p>Por esto y por precisi&#xF3;n, conviene conocer la diferencia entre el protocolo de red y la met&#xE1;fora visual.</p>
 <h3 id="client-server">Estableciendo la comunicaci&#xF3;n cliente-servidor </h3>
 <p><strong>Nota</strong>: configurar las notificaciones <em>push</em> para que funcionen con Chrome, Samsung Internet y Opera requiere conocer los valores <code>gcm_sender_id</code> y <code>gcm_api_key</code> de una aplicaci&#xF3;n <a href="https://firebase.google.com/" target="_blank">Firebase</a>. Aunque se te propocionar&#xE1;n unos valores de prueba durante el taller, puedes crear tu propia aplicaci&#xF3;n Firebase y consultar esta <a href="http://dev.tapjoy.com/faq/how-to-find-sender-id-and-api-key-for-gcm/" target="_blank">gu&#xED;a de TapJoy para saber d&#xF3;nde encontrarlos</a>.</p>
 <hr>
@@ -985,6 +995,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
 <p>La funci&#xF3;n <code>sendNotification</code> utiliza la biblioteca <code>webPush</code> para enviar una notificaci&#xF3;n mediante el m&#xE9;todo <a href="https://github.com/web-push-libs/web-push#sendnotificationpushsubscription-payload-options" target="_blank"><code>sendNotification</code></a>.</p>
 <p>La constante <code>NOTIFICATION_PERIOD</code> establece cada cu&#xE1;nto se lanzar&#xE1; una nueva notificaci&#xF3;n. Cuando hayamos comprobado que todo funciona podemos elevar este n&#xFA;mero a 48 horas o el tiempo que consideremos oportuno.</p>
 <p>Recuerda que, cuando modificas el servidor, Glitch relanza la aplicaci&#xF3;n y todas las subscripciones se pierden. Es necesario <strong>recargar el cliente para que este env&#xED;e una nueva subscripci&#xF3;n al servidor</strong>.</p>
+<p>No te esfuerces. No vas a ver nada en este momento. Sigue leyendo para saber por qu&#xE9;.</p>
 <h3 id="showing-notifications">Mostrando la notificaci&#xF3;n al usuario </h3>
 <p>Es dif&#xED;cil comprobar que, efectivamente, la notificaci&#xF3;n ha alcanzado al cliente porque este no la trata: no hay a&#xFA;n una asociaci&#xF3;n entre recibir una notificaci&#xF3;n desde el servidor y usar la interfaz de usuario para mostrarla.</p>
 <p>Esto lo arreglaremos en el <em>service worker</em>. Lo que haremos ser&#xE1; a&#xF1;adir un manejador para el evento <a href="https://developer.mozilla.org/en-US/docs/Web/Events/push" target="_blank"><code>push</code></a>. Modifica el fichero del <em>SW</em> <code>public/service-worker.js</code> y a&#xF1;ade esto al final del mismo:</p>
@@ -1033,6 +1044,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
 <hr>
 <p>&#xA1;Enhorabuena! Has completado tu primera <em>PWA</em> partiendo de una aplicaci&#xF3;n web sin JavaScript. Recuerda que las aplicaciones web progresivas son parte de la Web y no necesitan seguir un patr&#xF3;n <em>single page application</em> ni incluir complejos <em>frameworks</em> JavaScript.</p>
 <p>Este taller ha presentado el uso de <em>service workers</em>, notificaciones <em>push</em> y el manifiesto web pero debes de aplicar cada una de estas tecnolog&#xED;as por separado, pensando en las mejoras que desees incorporar a tu sitio web, en el marco de la mejora progresiva, para proporcionar una buena experiencia a todos tus usuarios y una mejor experiencia a los usuarios de la Web moderna.</p>
+<p>Si quieres experimentar con la aplicaci&#xF3;n completa, puedes <a href="https://glitch.com/~recommendations" target="_blank">remezclar el proyecto terminado</a> o experimentar con &#xE9;l en <a href="https://recommendations.glitch.me" target="_blank">https://recommendations.glitch.me</a></p>
 
                                 
                                 </section>
@@ -1076,7 +1088,7 @@ webPush.setGCMAPIKey(<span class="hljs-string">&apos;XXXXXXXXX&apos;</span>); <s
     <script>
         var gitbook = gitbook || [];
         gitbook.push(function() {
-            gitbook.page.hasChanged({"page":{"title":"Introducción","level":"3.1","depth":1,"next":{"title":"Uso básico de service workers","level":"3.2","depth":1,"anchor":"#service-workers","path":"workshop/workshop.md","ref":"workshop/workshop.md#service-workers","articles":[{"title":"Creación del fichero y registro","level":"3.2.1","depth":2,"anchor":"#registering","path":"workshop/workshop.md","ref":"workshop/workshop.md#registering","articles":[]},{"title":"Instalación y activación del service worker","level":"3.2.2","depth":2,"anchor":"#installation","path":"workshop/workshop.md","ref":"workshop/workshop.md#installation","articles":[]},{"title":"Estrategias de caché","level":"3.2.3","depth":2,"anchor":"#cache-strategies","path":"workshop/workshop.md","ref":"workshop/workshop.md#cache-strategies","articles":[]},{"title":"Conclusión","level":"3.2.4","depth":2,"anchor":"#service-workers-conclusion","path":"workshop/workshop.md","ref":"workshop/workshop.md#service-workers-conclusion","articles":[]}]},"previous":{"title":"Subir nuevos recursos","level":"2.6","depth":1,"anchor":"#assets","path":"environment/glitch.md","ref":"environment/glitch.md#assets","articles":[]},"dir":"ltr"},"config":{"plugins":[],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"language":"es","gitbook":"*"},"file":{"path":"workshop/workshop.md","mtime":"2017-07-23T09:39:27.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-08-05T16:08:55.391Z"},"basePath":"..","book":{"language":""}});
+            gitbook.page.hasChanged({"page":{"title":"Introducción","level":"3.1","depth":1,"next":{"title":"Uso básico de service workers","level":"3.2","depth":1,"anchor":"#service-workers","path":"workshop/workshop.md","ref":"workshop/workshop.md#service-workers","articles":[{"title":"Creación del fichero y registro","level":"3.2.1","depth":2,"anchor":"#registering","path":"workshop/workshop.md","ref":"workshop/workshop.md#registering","articles":[]},{"title":"Instalación y activación del service worker","level":"3.2.2","depth":2,"anchor":"#installation","path":"workshop/workshop.md","ref":"workshop/workshop.md#installation","articles":[]},{"title":"Estrategias de caché","level":"3.2.3","depth":2,"anchor":"#cache-strategies","path":"workshop/workshop.md","ref":"workshop/workshop.md#cache-strategies","articles":[]},{"title":"Conclusión","level":"3.2.4","depth":2,"anchor":"#service-workers-conclusion","path":"workshop/workshop.md","ref":"workshop/workshop.md#service-workers-conclusion","articles":[]}]},"previous":{"title":"Subir nuevos recursos","level":"2.6","depth":1,"anchor":"#assets","path":"environment/glitch.md","ref":"environment/glitch.md#assets","articles":[]},"dir":"ltr"},"config":{"plugins":[],"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"pluginsConfig":{"highlight":{},"search":{},"lunr":{"maxIndexSize":1000000,"ignoreSpecialCharacters":false},"sharing":{"facebook":true,"twitter":true,"google":false,"weibo":false,"instapaper":false,"vk":false,"all":["facebook","google","twitter","weibo","instapaper"]},"fontsettings":{"theme":"white","family":"sans","size":2},"theme-default":{"styles":{"website":"styles/website.css","pdf":"styles/pdf.css","epub":"styles/epub.css","mobi":"styles/mobi.css","ebook":"styles/ebook.css","print":"styles/print.css"},"showLevel":false}},"theme":"default","pdf":{"pageNumbers":true,"fontSize":12,"fontFamily":"Arial","paperSize":"a4","chapterMark":"pagebreak","pageBreaksBefore":"/","margin":{"right":62,"left":62,"top":56,"bottom":56}},"structure":{"langs":"LANGS.md","readme":"README.md","glossary":"GLOSSARY.md","summary":"SUMMARY.md"},"variables":{},"language":"es","gitbook":"*"},"file":{"path":"workshop/workshop.md","mtime":"2017-08-09T09:48:53.000Z","type":"markdown"},"gitbook":{"version":"3.2.2","time":"2017-08-09T10:21:19.214Z"},"basePath":"..","book":{"language":""}});
         });
     </script>
 </div>
