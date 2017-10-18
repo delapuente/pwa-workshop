@@ -1,18 +1,20 @@
-# PWA Workshop
+# Taller de PWA
 
-The [PWA Workshop](https://delapuente.github.io/pwa-workshop/) aims at providing a step-by-step guide to integrate the core technologies of the so-called PWA: Service Workers, Web Manifest and Push Notifications.
+> Visit the [English version of the workshop](../en/).
 
-The Recommendations utility is a _single-view_ application although it does not fit the [SPA definition](https://en.wikipedia.org/wiki/Single-page_application) since there are real navigations between URLs even when they present the same view.
+El [taller de PWA](https://delapuente.github.io/pwa-workshop/) trata de ofrecer una guía paso-a-paso para itnergrar las tecnologías centrales de las llamadas PWA: Service Workers, manifiesto Web y notificaciones PUSH.
 
-Parts of this series:
+La utilidad _Recommendations_ es una aplicación _de una sola vista_ aunque no encaje en la [categoría de SPA](https://en.wikipedia.org/wiki/Single-page_application) dado que sí existen navegaciones entre distintas URL aunque todas ellas presenten la misma vista.
 
-  1. [PWA Workshop @ step 1](https://glitch.com/edit/#!/pwa-workshop)
-  2. [PWA Workshop @ step 2](https://glitch.com/edit/#!/pwa-workshop-step2)
-  3. [PWA Workshop @ step 3](https://glitch.com/edit/#!/pwa-workshop-step3)
-  4. [Recommendations](https://glitch.com/edit/#!/recommendations)
+Los proyectos en los distintos puntos del taller son:
+
+  1. [PWA Workshop @ paso 1](https://glitch.com/edit/#!/pwa-workshop)
+  2. [PWA Workshop @ paso 2](https://glitch.com/edit/#!/pwa-workshop-step2)
+  3. [PWA Workshop @ paso 3](https://glitch.com/edit/#!/pwa-workshop-step3)
+  4. [Proyecto finalizado: aplicación Recommendations](https://glitch.com/edit/#!/recommendations)
 
 
-## Third party icons
+## Iconos de terceras partes
 
 Icons made by [Dave Gandy](http://www.flaticon.com/authors/dave-gandy "Dave Gandy") from [www.flaticon.com](http://www.flaticon.com "Flaticon") is licensed by [CC 3.0 BY](http://creativecommons.org/licenses/by/3.0/ "Creative Commons BY 3.0")
 
